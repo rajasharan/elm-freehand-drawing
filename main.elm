@@ -16,10 +16,10 @@ main =
 
 type alias Model =
     { shape : Shape
-    , size : Size
-    , mouseMoving : Bool
-    , mouseCurPos : Mouse.Position
     , currentPath : Path
+    , mouseCurPos : Mouse.Position
+    , mouseMoving : Bool
+    , size : Size
     }
 
 type alias Shape = List Path
@@ -27,10 +27,10 @@ type alias Path = List (Float, Float)
 
 init : (Model, Cmd Msg)
 init = ( { shape = []
-         , size = { width = 500, height = 500 }
-         , mouseMoving = False
-         , mouseCurPos = { x = 0, y = 0 }
          , currentPath = []
+         , mouseCurPos = { x = 0, y = 0 }
+         , mouseMoving = False
+         , size = { width = 500, height = 500 }
          }
        , perform (\x -> None) Window Window.size
        )
@@ -70,14 +70,23 @@ addPositionToList pos model =
         y = toFloat pos.y
         cx = x - (toFloat w)/2
         cy = -(y - (toFloat h)/2)
+        replace path shape =
+            case (List.head shape) of
+                Nothing -> path :: shape
+                Just _ -> path :: List.drop 1 shape
     in
     if model.mouseMoving then
-        { model | currentPath = (cx, cy) :: model.currentPath }
+        { model | currentPath = (cx, cy) :: model.currentPath
+                , shape = replace model.currentPath model.shape
+        }
     else
         model
 
 endMouseMovement : Mouse.Position -> Model -> Model
-endMouseMovement pos model = { model | mouseMoving = False, shape = model.currentPath :: model.shape }
+endMouseMovement pos model = { model | mouseMoving = False
+                                     --, shape = model.currentPath :: model.shape
+                                     , currentPath = []
+                             }
 
 subs : Model -> Sub Msg
 subs model =
@@ -91,7 +100,7 @@ subs model =
 view : Model -> Html Msg
 view model =
     let
-        --l = Debug.log "shapes" model.shape
+        l = Debug.log "shape" model.shape
         paths = List.map path model.shape
         forms = List.map (traced defaultLine) paths
 
