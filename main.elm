@@ -2,6 +2,7 @@ import Html exposing (..)
 import Html.App as App exposing (..)
 import Collage exposing (..)
 import Element exposing (..)
+import Text exposing (..)
 import Window exposing (..)
 import Task exposing (..)
 import Mouse exposing (..)
@@ -117,8 +118,19 @@ view model =
         w = model.size.width
         h = model.size.height
     in
-        collage w h forms
+        collage w h (banner model :: forms)
         |> toHtml
+
+banner : Model -> Form
+banner model =
+    fromString "Freehand Drawing"
+    |> bold
+    |> monospace
+    |> Text.height 40
+    |> line Under
+    |> justified
+    |> container model.size.width model.size.height (midTopAt (relative 0.5) (relative 0.01))
+    |> toForm
 
 countShape : (List (List a)) -> List Int
 countShape shape = List.map (\x -> List.length x) shape
