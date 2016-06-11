@@ -17,7 +17,6 @@ main =
 type alias Model =
     { shape : Shape
     , currentPath : Path
-    , mouseCurPos : Mouse.Position
     , mouseMoving : Bool
     , size : Size
     }
@@ -28,7 +27,6 @@ type alias Path = List (Float, Float)
 init : (Model, Cmd Msg)
 init = ( { shape = []
          , currentPath = []
-         , mouseCurPos = { x = 0, y = 0 }
          , mouseMoving = False
          , size = { width = 500, height = 500 }
          }
@@ -59,58 +57,68 @@ setSize : Size -> Model -> Model
 setSize size model = { model | size = size }
 
 startMouseMovement : Mouse.Position -> Model -> Model
-startMouseMovement pos model = { model | mouseMoving = True, mouseCurPos = pos }
+startMouseMovement pos model =
+    { model | mouseMoving = True
+    , currentPath = [] 
+    }
 
 addPositionToList : Mouse.Position -> Model -> Model
 addPositionToList pos model =
     let 
-        w = model.size.width
-        h = model.size.height
+        w = toFloat model.size.width
+        h = toFloat model.size.height
         x = toFloat pos.x
         y = toFloat pos.y
-        cx = x - (toFloat w)/2
-        cy = -(y - (toFloat h)/2)
+
+        {- conversion between mouse coord and canvas coord
+         - mouse coord starts at top letf
+         - canvas origin lies on center of the screen
+        -}
+        cx = x - w/2
+        cy = -(y - h/2)
+
+        newPath = (cx, cy) :: model.currentPath
+
         replace path shape =
             case (List.head shape) of
                 Nothing -> path :: shape
                 Just _ -> path :: List.drop 1 shape
     in
     if model.mouseMoving then
-        { model | currentPath = (cx, cy) :: model.currentPath
-                , shape = replace model.currentPath model.shape
+        { model | currentPath = newPath
+                , shape = replace newPath model.shape
         }
     else
         model
 
 endMouseMovement : Mouse.Position -> Model -> Model
-endMouseMovement pos model = { model | mouseMoving = False
-                                     --, shape = model.currentPath :: model.shape
-                                     , currentPath = []
-                             }
+endMouseMovement pos model =
+    { model | mouseMoving = False
+    , shape = model.currentPath :: model.shape
+    }
 
 subs : Model -> Sub Msg
 subs model =
-        Sub.batch
-            [ downs MouseDown
-            , moves MouseMove
-            , ups MouseUp
-            , resizes Window
-            ]
+    Sub.batch
+        [ downs MouseDown
+        , moves MouseMove
+        , ups MouseUp
+        , resizes Window
+        ]
 
 view : Model -> Html Msg
 view model =
     let
-        l = Debug.log "shape" model.shape
+        --l = Debug.log "shape" model.shape
+        --c = Debug.log "shape-counts" <| countShape model.shape
         paths = List.map path model.shape
         forms = List.map (traced defaultLine) paths
 
-        getWidth {width} = width
-        getHeight {height} = height
-
-        s = model.size
-        w = getWidth s
-        h = getHeight s
+        w = model.size.width
+        h = model.size.height
     in
         collage w h forms
         |> toHtml
 
+countShape : (List (List a)) -> List Int
+countShape shape = List.map (\x -> List.length x) shape
