@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "summary": "free hand drawing website written in elm",
-    "repository": "https://github.com/user/project.git",
+    "summary": "freehand drawing tool built with elm",
+    "repository": "https://github.com/rajasharan/elm-freehand-drawing.git",
     "license": "MIT",
     "source-directories": [
         "."
