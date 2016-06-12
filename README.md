@@ -13,7 +13,7 @@ $ elm reactor
 
 ### Compilation
 ```sh
-$ elm make main.elm --output index.html
+$ elm make Main.elm --output elm.js
 ```
 
 ### [License](/LICENSE)
