@@ -11702,11 +11702,33 @@ var _rajasharan$elm_freehand_drawing$Main$decodePoint = function (point) {
 		return _elm_lang$core$Maybe$Nothing;
 	}
 };
+var _rajasharan$elm_freehand_drawing$Main$denormalizePoint = F2(
+	function (size, point) {
+		var _p2 = point;
+		var x = _p2._0;
+		var y = _p2._1;
+		var h = _elm_lang$core$Basics$toFloat(size.height) / 2;
+		var y$ = h * y;
+		var w = _elm_lang$core$Basics$toFloat(size.width) / 2;
+		var x$ = w * x;
+		return {ctor: '_Tuple2', _0: x$, _1: y$};
+	});
+var _rajasharan$elm_freehand_drawing$Main$normalizePoint = F2(
+	function (size, point) {
+		var _p3 = point;
+		var x = _p3._0;
+		var y = _p3._1;
+		var h = _elm_lang$core$Basics$toFloat(size.height) / 2;
+		var y$ = y / h;
+		var w = _elm_lang$core$Basics$toFloat(size.width) / 2;
+		var x$ = x / w;
+		return {ctor: '_Tuple2', _0: x$, _1: y$};
+	});
 var _rajasharan$elm_freehand_drawing$Main$addPointToShape = F2(
 	function (point, model) {
-		var _p2 = model.shape;
-		if (_p2.ctor === '::') {
-			if (_p2._0.ctor === '::') {
+		var _p4 = model.shape;
+		if (_p4.ctor === '::') {
+			if (_p4._0.ctor === '::') {
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -11715,9 +11737,9 @@ var _rajasharan$elm_freehand_drawing$Main$addPointToShape = F2(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								_elm_lang$core$Native_List.fromArray(
-									[point, _p2._0._0]),
-								_p2._0._1),
-							_p2._1)
+									[point, _p4._0._0]),
+								_p4._0._1),
+							_p4._1)
 					});
 			} else {
 				return _elm_lang$core$Native_Utils.update(
@@ -11727,7 +11749,7 @@ var _rajasharan$elm_freehand_drawing$Main$addPointToShape = F2(
 							_elm_lang$core$List_ops['::'],
 							_elm_lang$core$Native_List.fromArray(
 								[point]),
-							_p2._1)
+							_p4._1)
 					});
 			}
 		} else {
@@ -11774,8 +11796,8 @@ var _rajasharan$elm_freehand_drawing$Main$addPositionToList = F2(
 	function (pos, model) {
 		var replace = F2(
 			function (path, shape) {
-				var _p3 = _elm_lang$core$List$head(shape);
-				if (_p3.ctor === 'Nothing') {
+				var _p5 = _elm_lang$core$List$head(shape);
+				if (_p5.ctor === 'Nothing') {
 					return A2(_elm_lang$core$List_ops['::'], path, shape);
 				} else {
 					return A2(
@@ -11817,7 +11839,9 @@ var _rajasharan$elm_freehand_drawing$Main$print = function (str) {
 var _rajasharan$elm_freehand_drawing$Main$server = 'ws://192.168.1.5:3000';
 var _rajasharan$elm_freehand_drawing$Main$sendPosition = F2(
 	function (pos, size) {
-		var point = A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, size);
+		var normalizePoint$ = _rajasharan$elm_freehand_drawing$Main$normalizePoint(size);
+		var point = normalizePoint$(
+			A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, size));
 		return A2(
 			_elm_lang$websocket$WebSocket$send,
 			_rajasharan$elm_freehand_drawing$Main$server,
@@ -11838,15 +11862,16 @@ var _rajasharan$elm_freehand_drawing$Main$Desktop = function (a) {
 var _rajasharan$elm_freehand_drawing$Main$Phone = function (a) {
 	return {ctor: 'Phone', _0: a};
 };
-var _rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone = F2(
+var _rajasharan$elm_freehand_drawing$Main$decodeAndAddShape = F2(
 	function (str, m) {
 		var point = _rajasharan$elm_freehand_drawing$Main$decodePoint(str);
-		var _p4 = point;
-		if (_p4.ctor === 'Just') {
+		var denormalizePoint$ = _rajasharan$elm_freehand_drawing$Main$denormalizePoint(m.size);
+		var _p6 = point;
+		if (_p6.ctor === 'Just') {
 			return _rajasharan$elm_freehand_drawing$Main$Phone(
 				A2(
 					_rajasharan$elm_freehand_drawing$Main$addPointToShape,
-					_p4._0,
+					denormalizePoint$(_p6._0),
 					{shape: m.shape, size: m.size}));
 		} else {
 			return _rajasharan$elm_freehand_drawing$Main$Phone(
@@ -11855,107 +11880,107 @@ var _rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone = F2(
 	});
 var _rajasharan$elm_freehand_drawing$Main$update = F2(
 	function (message, model) {
-		var _p5 = {ctor: '_Tuple2', _0: message, _1: model};
+		var _p7 = {ctor: '_Tuple2', _0: message, _1: model};
 		_v5_12:
 		do {
-			if (_p5._1.ctor === 'Desktop') {
-				switch (_p5._0.ctor) {
+			if (_p7._1.ctor === 'Desktop') {
+				switch (_p7._0.ctor) {
 					case 'Window':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$setSize, _p5._0._0, _p5._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$setSize, _p7._0._0, _p7._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'MouseDown':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$startMouseMovement, _p5._0._0, _p5._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$startMouseMovement, _p7._0._0, _p7._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'MouseMove':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$addPositionToList, _p5._0._0, _p5._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$addPositionToList, _p7._0._0, _p7._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'MouseUp':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$endMouseMovement, _p5._0._0, _p5._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$endMouseMovement, _p7._0._0, _p7._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'Error':
 						return {
 							ctor: '_Tuple2',
-							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(_p5._1._0),
-							_1: _rajasharan$elm_freehand_drawing$Main$print(_p5._0._0)
+							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(_p7._1._0),
+							_1: _rajasharan$elm_freehand_drawing$Main$print(_p7._0._0)
 						};
 					case 'TouchStart':
-						var _p6 = _p5._1._0;
+						var _p8 = _p7._1._0;
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
 								_rajasharan$elm_freehand_drawing$Main$resetPath(
-									{shape: _p6.shape, size: _p6.size})),
+									{shape: _p8.shape, size: _p8.size})),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'TouchMove':
-						var _p7 = _p5._1._0;
+						var _p9 = _p7._1._0;
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
 								A2(
 									_rajasharan$elm_freehand_drawing$Main$touchMovement,
-									_p5._0._0,
-									{shape: _p7.shape, size: _p7.size})),
+									_p7._0._0,
+									{shape: _p9.shape, size: _p9.size})),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'Listen':
-						var _p10 = _p5._1._0;
+						var _p12 = _p7._1._0;
 						return {
 							ctor: '_Tuple2',
 							_0: A2(
-								_rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone,
-								_p5._0._0,
-								{shape: _p10.shape, size: _p10.size}),
+								_rajasharan$elm_freehand_drawing$Main$decodeAndAddShape,
+								_p7._0._0,
+								{shape: _p12.shape, size: _p12.size}),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					default:
 						break _v5_12;
 				}
 			} else {
-				switch (_p5._0.ctor) {
+				switch (_p7._0.ctor) {
 					case 'TouchStart':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
-								_rajasharan$elm_freehand_drawing$Main$resetPath(_p5._1._0)),
+								_rajasharan$elm_freehand_drawing$Main$resetPath(_p7._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'TouchMove':
-						var _p9 = _p5._0._0;
-						var _p8 = _p5._1._0;
+						var _p11 = _p7._0._0;
+						var _p10 = _p7._1._0;
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
-								A2(_rajasharan$elm_freehand_drawing$Main$touchMovement, _p9, _p8)),
-							_1: A2(_rajasharan$elm_freehand_drawing$Main$sendPosition, _p9, _p8.size)
+								A2(_rajasharan$elm_freehand_drawing$Main$touchMovement, _p11, _p10)),
+							_1: A2(_rajasharan$elm_freehand_drawing$Main$sendPosition, _p11, _p10.size)
 						};
 					case 'TouchEnd':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
-								_rajasharan$elm_freehand_drawing$Main$resetPath(_p5._1._0)),
+								_rajasharan$elm_freehand_drawing$Main$resetPath(_p7._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$sendCancel
 						};
 					case 'Listen':
 						return {
 							ctor: '_Tuple2',
-							_0: A2(_rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone, _p5._0._0, _p5._1._0),
+							_0: A2(_rajasharan$elm_freehand_drawing$Main$decodeAndAddShape, _p7._0._0, _p7._1._0),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					default:
@@ -12014,15 +12039,15 @@ var _rajasharan$elm_freehand_drawing$Main$drawCanvas = function (m) {
 			]));
 };
 var _rajasharan$elm_freehand_drawing$Main$view = function (model) {
-	var _p11 = model;
-	if (_p11.ctor === 'Desktop') {
-		var _p12 = _p11._0;
+	var _p13 = model;
+	if (_p13.ctor === 'Desktop') {
+		var _p14 = _p13._0;
 		return _rajasharan$elm_freehand_drawing$Main$drawCanvas(
-			{shape: _p12.shape, size: _p12.size});
+			{shape: _p14.shape, size: _p14.size});
 	} else {
-		var _p13 = _p11._0;
+		var _p15 = _p13._0;
 		return _rajasharan$elm_freehand_drawing$Main$drawCanvas(
-			{shape: _p13.shape, size: _p13.size});
+			{shape: _p15.shape, size: _p15.size});
 	}
 };
 var _rajasharan$elm_freehand_drawing$Main$MouseUp = function (a) {

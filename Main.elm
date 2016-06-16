@@ -75,8 +75,8 @@ update message model =
         (TouchMove pos, Desktop m)  -> ( Phone <| touchMovement pos {shape = m.shape, size = m.size}, nop )
         (TouchMove pos, Phone m)    -> ( Phone <| touchMovement pos m, sendPosition pos m.size )
         (TouchEnd, Phone m)         -> ( Phone <| resetPath m, sendCancel )
-        (Listen str, Desktop m)     -> ( decodeAndAddShapePhone str {shape = m.shape, size = m.size}, nop )
-        (Listen str, Phone m)       -> ( decodeAndAddShapePhone str m, nop )
+        (Listen str, Desktop m)     -> ( decodeAndAddShape str {shape = m.shape, size = m.size}, nop )
+        (Listen str, Phone m)       -> ( decodeAndAddShape str m, nop )
         (_, _)                      -> ( model, nop )
 
 nop : Cmd Msg
@@ -152,11 +152,35 @@ addPointToShape point model =
 
 sendPosition : Mouse.Position -> Size -> Cmd Msg
 sendPosition pos size =
-    let point = convertMouseToCanvasCoord pos size
+    let 
+        normalizePoint' = normalizePoint size
+        point = normalizePoint' <| convertMouseToCanvasCoord pos size
     in send server <| toString point
 
 sendCancel : Cmd Msg
 sendCancel = send server "Cancel"
+
+normalizePoint : Size -> (Float, Float) -> (Float, Float)
+normalizePoint size point =
+    let
+        w = (toFloat size.width)/2
+        h = (toFloat size.height)/2
+        (x,y) = point
+        x' = x/w
+        y' = y/h
+    in
+        (x', y')
+
+denormalizePoint : Size -> (Float, Float) -> (Float, Float)
+denormalizePoint size point =
+    let
+        w = (toFloat size.width)/2
+        h = (toFloat size.height)/2
+        (x,y) = point
+        x' = w*x
+        y' = h*y
+    in
+        (x', y')
 
 {-
 decodeAndAddShapeDesktop : String -> CanvasModel -> Model
@@ -169,13 +193,14 @@ decodeAndAddShapeDesktop str m =
             Nothing -> Desktop m
 -}
 
-decodeAndAddShapePhone : String -> PhoneModel -> Model
-decodeAndAddShapePhone str m =
+decodeAndAddShape : String -> PhoneModel -> Model
+decodeAndAddShape str m =
     let
+        denormalizePoint' = denormalizePoint m.size
         point = decodePoint str
     in
         case point of
-            Just p -> Phone (addPointToShape p {shape = m.shape, size = m.size})
+            Just p -> Phone (addPointToShape (denormalizePoint' p) {shape = m.shape, size = m.size})
             Nothing -> Phone (resetPath m)
 
 decodePoint : String -> Maybe (Float, Float)
