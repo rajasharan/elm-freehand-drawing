@@ -11,13 +11,17 @@ import Mouse exposing (..)
 import WebSocket exposing (..)
 import Json.Decode as Json exposing (..)
 import Random exposing (..)
+import Navigation exposing (..)
+import String
 
 main =
-    App.program
+    Navigation.program
+        (makeParser urlHashParser)
         { init = init
         , update = update
         , subscriptions = subs
         , view = view
+        , urlUpdate = urlUpdate
         }
 
 type alias Model =
@@ -32,14 +36,14 @@ type alias Path = List (Float, Float)
 
 type MouseType = Mouse | Touch
 
-init : (Model, Cmd Msg)
-init = ( { shape = []
-         , size = { width = 500, height = 500 }
-         , moving = False
-         , server = "ws://192.168.1.5:3000"
-         }
-       , perform Error Window Window.size
-       )
+init : String -> (Model, Cmd Msg)
+init hash = ( { shape = []
+              , size = { width = 500, height = 500 }
+              , moving = False
+              , server = String.dropLeft 1 hash
+              }
+            , perform Error Window Window.size
+            )
 
 type Msg = Window Size
          | Error String
@@ -61,6 +65,13 @@ update message model =
 
 nop : Cmd Msg
 nop = Cmd.none
+
+urlHashParser : Location -> String
+urlHashParser location = location.hash
+
+urlUpdate : String -> Model -> (Model, Cmd Msg)
+urlUpdate hash model =
+    ( { model | server = String.dropLeft 1 hash }, nop )
 
 print : String -> Cmd Msg
 print str =
@@ -174,6 +185,7 @@ convertMouseToCanvasCoord pos size =
 
 subs : Model -> Sub Msg
 subs model =
+    --let m = Debug.log "sub" model in
     Sub.batch
         [ resizes Window
         , listen model.server Listen
