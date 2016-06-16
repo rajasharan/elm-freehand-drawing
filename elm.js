@@ -11856,7 +11856,7 @@ var _rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone = F2(
 var _rajasharan$elm_freehand_drawing$Main$update = F2(
 	function (message, model) {
 		var _p5 = {ctor: '_Tuple2', _0: message, _1: model};
-		_v5_11:
+		_v5_12:
 		do {
 			if (_p5._1.ctor === 'Desktop') {
 				switch (_p5._0.ctor) {
@@ -11914,8 +11914,18 @@ var _rajasharan$elm_freehand_drawing$Main$update = F2(
 									{shape: _p7.shape, size: _p7.size})),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
+					case 'Listen':
+						var _p10 = _p5._1._0;
+						return {
+							ctor: '_Tuple2',
+							_0: A2(
+								_rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone,
+								_p5._0._0,
+								{shape: _p10.shape, size: _p10.size}),
+							_1: _rajasharan$elm_freehand_drawing$Main$nop
+						};
 					default:
-						break _v5_11;
+						break _v5_12;
 				}
 			} else {
 				switch (_p5._0.ctor) {
@@ -11949,7 +11959,7 @@ var _rajasharan$elm_freehand_drawing$Main$update = F2(
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					default:
-						break _v5_11;
+						break _v5_12;
 				}
 			}
 		} while(false);
@@ -11963,7 +11973,7 @@ var _rajasharan$elm_freehand_drawing$Main$TouchStart = {ctor: 'TouchStart'};
 var _rajasharan$elm_freehand_drawing$Main$TouchMove = function (a) {
 	return {ctor: 'TouchMove', _0: a};
 };
-var _rajasharan$elm_freehand_drawing$Main$canvas = function (m) {
+var _rajasharan$elm_freehand_drawing$Main$drawCanvas = function (m) {
 	var h = m.size.height;
 	var w = m.size.width;
 	var paths = A2(_elm_lang$core$List$map, _evancz$elm_graphics$Collage$path, m.shape);
@@ -12004,15 +12014,15 @@ var _rajasharan$elm_freehand_drawing$Main$canvas = function (m) {
 			]));
 };
 var _rajasharan$elm_freehand_drawing$Main$view = function (model) {
-	var _p10 = model;
-	if (_p10.ctor === 'Desktop') {
-		var _p11 = _p10._0;
-		return _rajasharan$elm_freehand_drawing$Main$canvas(
-			{shape: _p11.shape, size: _p11.size});
-	} else {
-		var _p12 = _p10._0;
-		return _rajasharan$elm_freehand_drawing$Main$canvas(
+	var _p11 = model;
+	if (_p11.ctor === 'Desktop') {
+		var _p12 = _p11._0;
+		return _rajasharan$elm_freehand_drawing$Main$drawCanvas(
 			{shape: _p12.shape, size: _p12.size});
+	} else {
+		var _p13 = _p11._0;
+		return _rajasharan$elm_freehand_drawing$Main$drawCanvas(
+			{shape: _p13.shape, size: _p13.size});
 	}
 };
 var _rajasharan$elm_freehand_drawing$Main$MouseUp = function (a) {

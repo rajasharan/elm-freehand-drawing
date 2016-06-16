@@ -75,7 +75,7 @@ update message model =
         (TouchMove pos, Desktop m)  -> ( Phone <| touchMovement pos {shape = m.shape, size = m.size}, nop )
         (TouchMove pos, Phone m)    -> ( Phone <| touchMovement pos m, sendPosition pos m.size )
         (TouchEnd, Phone m)         -> ( Phone <| resetPath m, sendCancel )
-        --(Listen str, Desktop m)     -> ( decodeAndAddShapeDesktop str m, nop )
+        (Listen str, Desktop m)     -> ( decodeAndAddShapePhone str {shape = m.shape, size = m.size}, nop )
         (Listen str, Phone m)       -> ( decodeAndAddShapePhone str m, nop )
         (_, _)                      -> ( model, nop )
 
