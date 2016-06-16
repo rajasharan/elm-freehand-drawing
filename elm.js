@@ -11733,16 +11733,6 @@ var _rajasharan$elm_freehand_drawing$Main$normalizePoint = F2(
 var _rajasharan$elm_freehand_drawing$Main$sendCancel = function (m) {
 	return A2(_elm_lang$websocket$WebSocket$send, m.server, 'Cancel');
 };
-var _rajasharan$elm_freehand_drawing$Main$sendPosition = F2(
-	function (pos, m) {
-		var normalizePoint$ = _rajasharan$elm_freehand_drawing$Main$normalizePoint(m.size);
-		var point = normalizePoint$(
-			A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, m.size));
-		return A2(
-			_elm_lang$websocket$WebSocket$send,
-			m.server,
-			_elm_lang$core$Basics$toString(point));
-	});
 var _rajasharan$elm_freehand_drawing$Main$addPointToShape = F2(
 	function (point, model) {
 		var _p5 = model.shape;
@@ -11830,6 +11820,16 @@ var _rajasharan$elm_freehand_drawing$Main$print = function (str) {
 	var s = A2(_elm_lang$core$Debug$log, '', str);
 	return _rajasharan$elm_freehand_drawing$Main$nop;
 };
+var _rajasharan$elm_freehand_drawing$Main$sendPosition = F2(
+	function (pos, m) {
+		var normalizePoint$ = _rajasharan$elm_freehand_drawing$Main$normalizePoint(m.size);
+		var point = normalizePoint$(
+			A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, m.size));
+		return m.moving ? A2(
+			_elm_lang$websocket$WebSocket$send,
+			m.server,
+			_elm_lang$core$Basics$toString(point)) : _rajasharan$elm_freehand_drawing$Main$nop;
+	});
 var _rajasharan$elm_freehand_drawing$Main$update = F2(
 	function (message, model) {
 		var _p7 = message;

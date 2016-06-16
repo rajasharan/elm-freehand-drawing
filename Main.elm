@@ -104,7 +104,11 @@ sendPosition pos m =
     let 
         normalizePoint' = normalizePoint m.size
         point = normalizePoint' <| convertMouseToCanvasCoord pos m.size
-    in send m.server <| toString point
+    in
+        if m.moving then
+            send m.server <| toString point
+        else
+            nop
 
 sendCancel : Model -> Cmd Msg
 sendCancel m = send m.server "Cancel"
