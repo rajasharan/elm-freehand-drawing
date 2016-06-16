@@ -78,7 +78,8 @@ start model =
     }
 
 stop : Model -> Model
-stop model = { model | moving = False }
+stop model = { model | shape = [] :: model.shape
+                     , moving = False }
 
 draw : Mouse.Position -> Model -> Model
 draw pos model =

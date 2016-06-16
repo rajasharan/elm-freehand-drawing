@@ -11781,7 +11781,14 @@ var _rajasharan$elm_freehand_drawing$Main$draw = F2(
 var _rajasharan$elm_freehand_drawing$Main$stop = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
-		{moving: false});
+		{
+			shape: A2(
+				_elm_lang$core$List_ops['::'],
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				model.shape),
+			moving: false
+		});
 };
 var _rajasharan$elm_freehand_drawing$Main$decodeAndAddShape = F2(
 	function (str, m) {
