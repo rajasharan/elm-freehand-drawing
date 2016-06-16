@@ -20,64 +20,44 @@ main =
         , view = view
         }
 
-type Model = Phone PhoneModel
-           | Desktop CanvasModel
-
-type alias CanvasModel =
-    { shape : Shape
-    , currentPath : Path
-    , mouseMoving : Bool
-    , size : Size
-    }
-
-type alias PhoneModel =
+type alias Model =
     { shape : Shape
     , size : Size
+    , moving: Bool
+    , server: String
     }
 
 type alias Shape = List Path
 type alias Path = List (Float, Float)
 
+type MouseType = Mouse | Touch
+
 init : (Model, Cmd Msg)
-init = ( Desktop
-             { shape = []
-             , currentPath = []
-             , mouseMoving = False
-             , size = { width = 500, height = 500 }
-             }
+init = ( { shape = []
+         , size = { width = 500, height = 500 }
+         , moving = False
+         , server = "ws://192.168.1.5:3000"
+         }
        , perform Error Window Window.size
        )
 
 type Msg = Window Size
          | Error String
-         | MouseDown Mouse.Position
-         | MouseMove Mouse.Position
-         | MouseUp Mouse.Position
          | TouchMove Mouse.Position
          | TouchStart
          | TouchEnd
          | Listen String
 
-server : String
-server = "ws://192.168.1.5:3000"
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update message model =
     --let m = Debug.log "update-model" model in
-    case (message, model) of
-        (Window size, Desktop m)    -> ( Desktop <| setSize size m, nop )
-        (MouseDown pos, Desktop m)  -> ( Desktop <| startMouseMovement pos m, nop )
-        (MouseMove pos, Desktop m)  -> ( Desktop <| addPositionToList pos m, nop )
-        (MouseUp pos, Desktop m)    -> ( Desktop <| endMouseMovement pos m, nop )
-        (Error err, Desktop m)      -> ( Desktop m, print err )
-        (TouchStart, Desktop m)     -> ( Phone <| resetPath {shape = m.shape, size = m.size}, nop )
-        (TouchStart, Phone m)       -> ( Phone <| resetPath m, nop )
-        (TouchMove pos, Desktop m)  -> ( Phone <| touchMovement pos {shape = m.shape, size = m.size}, nop )
-        (TouchMove pos, Phone m)    -> ( Phone <| touchMovement pos m, sendPosition pos m.size )
-        (TouchEnd, Phone m)         -> ( Phone <| resetPath m, sendCancel )
-        (Listen str, Desktop m)     -> ( decodeAndAddShape str {shape = m.shape, size = m.size}, nop )
-        (Listen str, Phone m)       -> ( decodeAndAddShape str m, nop )
-        (_, _)                      -> ( model, nop )
+    case message of
+        Window size -> ( setSize size model, nop )
+        Error err -> ( model, print err )
+        TouchStart -> ( start model, nop )
+        TouchMove pos -> ( draw pos model, sendPosition pos model )
+        TouchEnd -> ( stop model, sendCancel model )
+        Listen str -> ( decodeAndAddShape str model, nop )
 
 nop : Cmd Msg
 nop = Cmd.none
@@ -87,78 +67,47 @@ print str =
     let s = Debug.log "" str
     in nop
 
-setSize : Size -> CanvasModel -> CanvasModel
+setSize : Size -> Model -> Model
 setSize size model = { model | size = size }
 
-startMouseMovement : Mouse.Position -> CanvasModel -> CanvasModel
-startMouseMovement pos model =
-    --let p = Debug.log "sub:start" pos in
-    { model | mouseMoving = True
-            , currentPath = [] 
+start : Model -> Model
+start model =
+    --Debug.log "touch:start"
+    { model | shape = [] :: model.shape
+            , moving = True
     }
 
-addPositionToList : Mouse.Position -> CanvasModel -> CanvasModel
-addPositionToList pos model =
-    let 
-        --p = Debug.log "sub:move" pos
-        newPos = convertMouseToCanvasCoord pos model.size
-        newPath = newPos :: model.currentPath
+stop : Model -> Model
+stop model = { model | moving = False }
 
-        replace path shape =
-            case (List.head shape) of
-                Nothing -> path :: shape
-                Just _ -> path :: List.drop 1 shape
-    in
-    if model.mouseMoving then
-        { model | currentPath = newPath
-                , shape = replace newPath model.shape
-        }
-    else
-        model
-
-endMouseMovement : Mouse.Position -> CanvasModel -> CanvasModel
-endMouseMovement pos model =
-    --let p = Debug.log "sub:end" pos in
-    --Debug.log "end"
-    { model | mouseMoving = False
-            , shape = model.currentPath :: model.shape
-    }
-
-resetPath : {shape: Shape, size: Size} -> {shape: Shape, size: Size}
-resetPath model =
-    Debug.log "touch:start"
-    { model | shape = [] :: model.shape }
-
-touchMovement : Mouse.Position -> {shape: Shape, size: Size} -> {shape: Shape, size: Size}
-touchMovement pos model =
+draw : Mouse.Position -> Model -> Model
+draw pos model =
     let
         --p = Debug.log "on:touch" pos
         --m = Debug.log "on:touch:model" model
         point = convertMouseToCanvasCoord pos model.size
     in
-        addPointToShape point model
+        if model.moving then
+            addPointToShape point model
+        else
+            model
 
---cancelTouch : {shape: Shape, size: Size} -> {shape: Shape, size: Size}
---cancelTouch model =
-    ----Debug.log "cancel"
-    --{model | shape = [] :: model.shape}
-
-addPointToShape : (Float, Float) -> {shape: Shape, size: Size} -> {shape: Shape, size: Size}
+addPointToShape : (Float, Float) -> Model -> Model
 addPointToShape point model =
     case model.shape of
         (p::ps)::xs  -> { model | shape = (([point, p])++ps)::xs }
         ([])::xs     -> { model | shape = ([point])::xs }
         []           -> { model | shape = [[point]] }
 
-sendPosition : Mouse.Position -> Size -> Cmd Msg
-sendPosition pos size =
+sendPosition : Mouse.Position -> Model -> Cmd Msg
+sendPosition pos m =
     let 
-        normalizePoint' = normalizePoint size
-        point = normalizePoint' <| convertMouseToCanvasCoord pos size
-    in send server <| toString point
+        normalizePoint' = normalizePoint m.size
+        point = normalizePoint' <| convertMouseToCanvasCoord pos m.size
+    in send m.server <| toString point
 
-sendCancel : Cmd Msg
-sendCancel = send server "Cancel"
+sendCancel : Model -> Cmd Msg
+sendCancel m = send m.server "Cancel"
 
 normalizePoint : Size -> (Float, Float) -> (Float, Float)
 normalizePoint size point =
@@ -182,26 +131,15 @@ denormalizePoint size point =
     in
         (x', y')
 
-{-
-decodeAndAddShapeDesktop : String -> CanvasModel -> Model
-decodeAndAddShapeDesktop str m =
-    let
-        point = decodePoint str
-    in
-        case point of
-            Just p -> Desktop (addPointToShape p {shape = m.shape, size = m.size})
-            Nothing -> Desktop m
--}
-
-decodeAndAddShape : String -> PhoneModel -> Model
+decodeAndAddShape : String -> Model -> Model
 decodeAndAddShape str m =
     let
         denormalizePoint' = denormalizePoint m.size
         point = decodePoint str
     in
         case point of
-            Just p -> Phone (addPointToShape (denormalizePoint' p) {shape = m.shape, size = m.size})
-            Nothing -> Phone (resetPath m)
+            Just p -> addPointToShape (denormalizePoint' p) m
+            Nothing -> stop m
 
 decodePoint : String -> Maybe (Float, Float)
 decodePoint point =
@@ -232,34 +170,41 @@ convertMouseToCanvasCoord pos size =
 subs : Model -> Sub Msg
 subs model =
     Sub.batch
-        [ downs MouseDown
-        , moves MouseMove
-        , ups MouseUp
-        , resizes Window
-        , listen server Listen
+        [ resizes Window
+        , listen model.server Listen
         ]
 
 {- event.changedTouches[0].clientX, event.changedTouches[0].clientY -}
 touchDecoder : Decoder (Float, Float)
-touchDecoder = Json.at ["changedTouches", "0"] <| Json.object2 (,) ("clientX" := Json.float) ("clientY" := Json.float)
+touchDecoder = Json.at ["changedTouches", "0"] mouseDecoder
+
+{- even.clientX, event.clientY -}
+mouseDecoder : Decoder (Float, Float)
+mouseDecoder = Json.object2 (,) ("clientX" := Json.float) ("clientY" := Json.float)
 
 {- Mouse.Position is aliased as {x: Int, y: Int} -}
-touchPosDecoder : Decoder Mouse.Position
-touchPosDecoder =
+positionDecoder : MouseType -> Decoder Mouse.Position
+positionDecoder mouseType =
     let
         converter tuple =
             case tuple of
                 (x, y) -> {x = round x, y = round y}
     in
-        Json.map converter touchDecoder
+        case mouseType of
+            Mouse -> Json.map converter mouseDecoder
+            Touch -> Json.map converter touchDecoder
+
+touchMoveDecoder : Decoder Msg
+touchMoveDecoder = Json.map TouchMove (positionDecoder Touch)
+
+mouseMoveDecoder : Decoder Msg
+mouseMoveDecoder = Json.map TouchMove (positionDecoder Mouse)
 
 view : Model -> Html Msg
 view model =
-    case model of
-        Desktop m -> drawCanvas {shape = m.shape, size = m.size}
-        Phone m -> drawCanvas {shape = m.shape, size = m.size}
+    drawCanvas model
 
-drawCanvas : {shape: Shape, size: Size} -> Html Msg
+drawCanvas : Model -> Html Msg
 drawCanvas m =
     let
         --l = Debug.log "shape" m.shape
@@ -277,14 +222,17 @@ drawCanvas m =
             , onWithOptions
                 "touchmove"
                 { stopPropagation = True, preventDefault = True }
-                (Json.map TouchMove touchPosDecoder)
+                touchMoveDecoder
             , on "touchend" (Json.succeed TouchEnd)
+            , on "mousedown" (Json.succeed TouchStart)
+            , on "mousemove" mouseMoveDecoder
+            , on "mouseup" (Json.succeed TouchEnd)
             ]
             [ collage w h (banner m :: forms)
               |> toHtml
             ]
 
-banner : {shape: Shape, size: Size} -> Form
+banner : Model -> Form
 banner model =
     fromString "Freehand Drawing"
     |> bold
