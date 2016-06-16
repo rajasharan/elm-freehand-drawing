@@ -6313,6 +6313,386 @@ var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
 var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
 var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
 
+var _elm_lang$core$Random$onSelfMsg = F3(
+	function (_p1, _p0, seed) {
+		return _elm_lang$core$Task$succeed(seed);
+	});
+var _elm_lang$core$Random$magicNum8 = 2147483562;
+var _elm_lang$core$Random$range = function (_p2) {
+	return {ctor: '_Tuple2', _0: 0, _1: _elm_lang$core$Random$magicNum8};
+};
+var _elm_lang$core$Random$magicNum7 = 2137383399;
+var _elm_lang$core$Random$magicNum6 = 2147483563;
+var _elm_lang$core$Random$magicNum5 = 3791;
+var _elm_lang$core$Random$magicNum4 = 40692;
+var _elm_lang$core$Random$magicNum3 = 52774;
+var _elm_lang$core$Random$magicNum2 = 12211;
+var _elm_lang$core$Random$magicNum1 = 53668;
+var _elm_lang$core$Random$magicNum0 = 40014;
+var _elm_lang$core$Random$step = F2(
+	function (_p3, seed) {
+		var _p4 = _p3;
+		return _p4._0(seed);
+	});
+var _elm_lang$core$Random$onEffects = F3(
+	function (router, commands, seed) {
+		var _p5 = commands;
+		if (_p5.ctor === '[]') {
+			return _elm_lang$core$Task$succeed(seed);
+		} else {
+			var _p6 = A2(_elm_lang$core$Random$step, _p5._0._0, seed);
+			var value = _p6._0;
+			var newSeed = _p6._1;
+			return A2(
+				_elm_lang$core$Task$andThen,
+				A2(_elm_lang$core$Platform$sendToApp, router, value),
+				function (_p7) {
+					return A3(_elm_lang$core$Random$onEffects, router, _p5._1, newSeed);
+				});
+		}
+	});
+var _elm_lang$core$Random$listHelp = F4(
+	function (list, n, generate, seed) {
+		listHelp:
+		while (true) {
+			if (_elm_lang$core$Native_Utils.cmp(n, 1) < 0) {
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$List$reverse(list),
+					_1: seed
+				};
+			} else {
+				var _p8 = generate(seed);
+				var value = _p8._0;
+				var newSeed = _p8._1;
+				var _v2 = A2(_elm_lang$core$List_ops['::'], value, list),
+					_v3 = n - 1,
+					_v4 = generate,
+					_v5 = newSeed;
+				list = _v2;
+				n = _v3;
+				generate = _v4;
+				seed = _v5;
+				continue listHelp;
+			}
+		}
+	});
+var _elm_lang$core$Random$minInt = -2147483648;
+var _elm_lang$core$Random$maxInt = 2147483647;
+var _elm_lang$core$Random$iLogBase = F2(
+	function (b, i) {
+		return (_elm_lang$core$Native_Utils.cmp(i, b) < 0) ? 1 : (1 + A2(_elm_lang$core$Random$iLogBase, b, (i / b) | 0));
+	});
+var _elm_lang$core$Random$command = _elm_lang$core$Native_Platform.leaf('Random');
+var _elm_lang$core$Random$Generator = function (a) {
+	return {ctor: 'Generator', _0: a};
+};
+var _elm_lang$core$Random$list = F2(
+	function (n, _p9) {
+		var _p10 = _p9;
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				return A4(
+					_elm_lang$core$Random$listHelp,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					n,
+					_p10._0,
+					seed);
+			});
+	});
+var _elm_lang$core$Random$map = F2(
+	function (func, _p11) {
+		var _p12 = _p11;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p13 = _p12._0(seed0);
+				var a = _p13._0;
+				var seed1 = _p13._1;
+				return {
+					ctor: '_Tuple2',
+					_0: func(a),
+					_1: seed1
+				};
+			});
+	});
+var _elm_lang$core$Random$map2 = F3(
+	function (func, _p15, _p14) {
+		var _p16 = _p15;
+		var _p17 = _p14;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p18 = _p16._0(seed0);
+				var a = _p18._0;
+				var seed1 = _p18._1;
+				var _p19 = _p17._0(seed1);
+				var b = _p19._0;
+				var seed2 = _p19._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(func, a, b),
+					_1: seed2
+				};
+			});
+	});
+var _elm_lang$core$Random$pair = F2(
+	function (genA, genB) {
+		return A3(
+			_elm_lang$core$Random$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			genA,
+			genB);
+	});
+var _elm_lang$core$Random$map3 = F4(
+	function (func, _p22, _p21, _p20) {
+		var _p23 = _p22;
+		var _p24 = _p21;
+		var _p25 = _p20;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p26 = _p23._0(seed0);
+				var a = _p26._0;
+				var seed1 = _p26._1;
+				var _p27 = _p24._0(seed1);
+				var b = _p27._0;
+				var seed2 = _p27._1;
+				var _p28 = _p25._0(seed2);
+				var c = _p28._0;
+				var seed3 = _p28._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A3(func, a, b, c),
+					_1: seed3
+				};
+			});
+	});
+var _elm_lang$core$Random$map4 = F5(
+	function (func, _p32, _p31, _p30, _p29) {
+		var _p33 = _p32;
+		var _p34 = _p31;
+		var _p35 = _p30;
+		var _p36 = _p29;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p37 = _p33._0(seed0);
+				var a = _p37._0;
+				var seed1 = _p37._1;
+				var _p38 = _p34._0(seed1);
+				var b = _p38._0;
+				var seed2 = _p38._1;
+				var _p39 = _p35._0(seed2);
+				var c = _p39._0;
+				var seed3 = _p39._1;
+				var _p40 = _p36._0(seed3);
+				var d = _p40._0;
+				var seed4 = _p40._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A4(func, a, b, c, d),
+					_1: seed4
+				};
+			});
+	});
+var _elm_lang$core$Random$map5 = F6(
+	function (func, _p45, _p44, _p43, _p42, _p41) {
+		var _p46 = _p45;
+		var _p47 = _p44;
+		var _p48 = _p43;
+		var _p49 = _p42;
+		var _p50 = _p41;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p51 = _p46._0(seed0);
+				var a = _p51._0;
+				var seed1 = _p51._1;
+				var _p52 = _p47._0(seed1);
+				var b = _p52._0;
+				var seed2 = _p52._1;
+				var _p53 = _p48._0(seed2);
+				var c = _p53._0;
+				var seed3 = _p53._1;
+				var _p54 = _p49._0(seed3);
+				var d = _p54._0;
+				var seed4 = _p54._1;
+				var _p55 = _p50._0(seed4);
+				var e = _p55._0;
+				var seed5 = _p55._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A5(func, a, b, c, d, e),
+					_1: seed5
+				};
+			});
+	});
+var _elm_lang$core$Random$andThen = F2(
+	function (_p56, callback) {
+		var _p57 = _p56;
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				var _p58 = _p57._0(seed);
+				var result = _p58._0;
+				var newSeed = _p58._1;
+				var _p59 = callback(result);
+				var genB = _p59._0;
+				return genB(newSeed);
+			});
+	});
+var _elm_lang$core$Random$State = F2(
+	function (a, b) {
+		return {ctor: 'State', _0: a, _1: b};
+	});
+var _elm_lang$core$Random$initState = function (s$) {
+	var s = A2(_elm_lang$core$Basics$max, s$, 0 - s$);
+	var q = (s / (_elm_lang$core$Random$magicNum6 - 1)) | 0;
+	var s2 = A2(_elm_lang$core$Basics_ops['%'], q, _elm_lang$core$Random$magicNum7 - 1);
+	var s1 = A2(_elm_lang$core$Basics_ops['%'], s, _elm_lang$core$Random$magicNum6 - 1);
+	return A2(_elm_lang$core$Random$State, s1 + 1, s2 + 1);
+};
+var _elm_lang$core$Random$next = function (_p60) {
+	var _p61 = _p60;
+	var _p63 = _p61._1;
+	var _p62 = _p61._0;
+	var k$ = (_p63 / _elm_lang$core$Random$magicNum3) | 0;
+	var s2$ = (_elm_lang$core$Random$magicNum4 * (_p63 - (k$ * _elm_lang$core$Random$magicNum3))) - (k$ * _elm_lang$core$Random$magicNum5);
+	var s2$$ = (_elm_lang$core$Native_Utils.cmp(s2$, 0) < 0) ? (s2$ + _elm_lang$core$Random$magicNum7) : s2$;
+	var k = (_p62 / _elm_lang$core$Random$magicNum1) | 0;
+	var s1$ = (_elm_lang$core$Random$magicNum0 * (_p62 - (k * _elm_lang$core$Random$magicNum1))) - (k * _elm_lang$core$Random$magicNum2);
+	var s1$$ = (_elm_lang$core$Native_Utils.cmp(s1$, 0) < 0) ? (s1$ + _elm_lang$core$Random$magicNum6) : s1$;
+	var z = s1$$ - s2$$;
+	var z$ = (_elm_lang$core$Native_Utils.cmp(z, 1) < 0) ? (z + _elm_lang$core$Random$magicNum8) : z;
+	return {
+		ctor: '_Tuple2',
+		_0: z$,
+		_1: A2(_elm_lang$core$Random$State, s1$$, s2$$)
+	};
+};
+var _elm_lang$core$Random$split = function (_p64) {
+	var _p65 = _p64;
+	var _p68 = _p65._1;
+	var _p67 = _p65._0;
+	var _p66 = _elm_lang$core$Basics$snd(
+		_elm_lang$core$Random$next(_p65));
+	var t1 = _p66._0;
+	var t2 = _p66._1;
+	var new_s2 = _elm_lang$core$Native_Utils.eq(_p68, 1) ? (_elm_lang$core$Random$magicNum7 - 1) : (_p68 - 1);
+	var new_s1 = _elm_lang$core$Native_Utils.eq(_p67, _elm_lang$core$Random$magicNum6 - 1) ? 1 : (_p67 + 1);
+	return {
+		ctor: '_Tuple2',
+		_0: A2(_elm_lang$core$Random$State, new_s1, t2),
+		_1: A2(_elm_lang$core$Random$State, t1, new_s2)
+	};
+};
+var _elm_lang$core$Random$Seed = function (a) {
+	return {ctor: 'Seed', _0: a};
+};
+var _elm_lang$core$Random$int = F2(
+	function (a, b) {
+		return _elm_lang$core$Random$Generator(
+			function (_p69) {
+				var _p70 = _p69;
+				var _p75 = _p70._0;
+				var base = 2147483561;
+				var f = F3(
+					function (n, acc, state) {
+						f:
+						while (true) {
+							var _p71 = n;
+							if (_p71 === 0) {
+								return {ctor: '_Tuple2', _0: acc, _1: state};
+							} else {
+								var _p72 = _p75.next(state);
+								var x = _p72._0;
+								var state$ = _p72._1;
+								var _v27 = n - 1,
+									_v28 = x + (acc * base),
+									_v29 = state$;
+								n = _v27;
+								acc = _v28;
+								state = _v29;
+								continue f;
+							}
+						}
+					});
+				var _p73 = (_elm_lang$core$Native_Utils.cmp(a, b) < 0) ? {ctor: '_Tuple2', _0: a, _1: b} : {ctor: '_Tuple2', _0: b, _1: a};
+				var lo = _p73._0;
+				var hi = _p73._1;
+				var k = (hi - lo) + 1;
+				var n = A2(_elm_lang$core$Random$iLogBase, base, k);
+				var _p74 = A3(f, n, 1, _p75.state);
+				var v = _p74._0;
+				var state$ = _p74._1;
+				return {
+					ctor: '_Tuple2',
+					_0: lo + A2(_elm_lang$core$Basics_ops['%'], v, k),
+					_1: _elm_lang$core$Random$Seed(
+						_elm_lang$core$Native_Utils.update(
+							_p75,
+							{state: state$}))
+				};
+			});
+	});
+var _elm_lang$core$Random$bool = A2(
+	_elm_lang$core$Random$map,
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.eq(x, y);
+		})(1),
+	A2(_elm_lang$core$Random$int, 0, 1));
+var _elm_lang$core$Random$float = F2(
+	function (a, b) {
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				var _p76 = A2(
+					_elm_lang$core$Random$step,
+					A2(_elm_lang$core$Random$int, _elm_lang$core$Random$minInt, _elm_lang$core$Random$maxInt),
+					seed);
+				var number = _p76._0;
+				var newSeed = _p76._1;
+				var negativeOneToOne = _elm_lang$core$Basics$toFloat(number) / _elm_lang$core$Basics$toFloat(_elm_lang$core$Random$maxInt - _elm_lang$core$Random$minInt);
+				var _p77 = (_elm_lang$core$Native_Utils.cmp(a, b) < 0) ? {ctor: '_Tuple2', _0: a, _1: b} : {ctor: '_Tuple2', _0: b, _1: a};
+				var lo = _p77._0;
+				var hi = _p77._1;
+				var scaled = ((lo + hi) / 2) + ((hi - lo) * negativeOneToOne);
+				return {ctor: '_Tuple2', _0: scaled, _1: newSeed};
+			});
+	});
+var _elm_lang$core$Random$initialSeed = function (n) {
+	return _elm_lang$core$Random$Seed(
+		{
+			state: _elm_lang$core$Random$initState(n),
+			next: _elm_lang$core$Random$next,
+			split: _elm_lang$core$Random$split,
+			range: _elm_lang$core$Random$range
+		});
+};
+var _elm_lang$core$Random$init = A2(
+	_elm_lang$core$Task$andThen,
+	_elm_lang$core$Time$now,
+	function (t) {
+		return _elm_lang$core$Task$succeed(
+			_elm_lang$core$Random$initialSeed(
+				_elm_lang$core$Basics$round(t)));
+	});
+var _elm_lang$core$Random$Generate = function (a) {
+	return {ctor: 'Generate', _0: a};
+};
+var _elm_lang$core$Random$generate = F2(
+	function (tagger, generator) {
+		return _elm_lang$core$Random$command(
+			_elm_lang$core$Random$Generate(
+				A2(_elm_lang$core$Random$map, tagger, generator)));
+	});
+var _elm_lang$core$Random$cmdMap = F2(
+	function (func, _p78) {
+		var _p79 = _p78;
+		return _elm_lang$core$Random$Generate(
+			A2(_elm_lang$core$Random$map, func, _p79._0));
+	});
+_elm_lang$core$Native_Platform.effectManagers['Random'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Random$init, onEffects: _elm_lang$core$Random$onEffects, onSelfMsg: _elm_lang$core$Random$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Random$cmdMap};
+
 var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
 var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
 var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
@@ -8191,6 +8571,539 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 			});
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
+
+var _elm_lang$websocket$Native_WebSocket = function() {
+
+function open(url, settings)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		try
+		{
+			var socket = new WebSocket(url);
+		}
+		catch(err)
+		{
+			return callback(_elm_lang$core$Native_Scheduler.fail({
+				ctor: err.name === 'SecurityError' ? 'BadSecurity' : 'BadArgs',
+				_0: err.message
+			}));
+		}
+
+		socket.addEventListener("open", function(event) {
+			callback(_elm_lang$core$Native_Scheduler.succeed(socket));
+		});
+
+		socket.addEventListener("message", function(event) {
+			_elm_lang$core$Native_Scheduler.rawSpawn(A2(settings.onMessage, socket, event.data));
+		});
+
+		socket.addEventListener("close", function(event) {
+			_elm_lang$core$Native_Scheduler.rawSpawn(settings.onClose({
+				code: event.code,
+				reason: event.reason,
+				wasClean: event.wasClean
+			}));
+		});
+
+		return function()
+		{
+			if (socket && socket.close)
+			{
+				socket.close();
+			}
+		};
+	});
+}
+
+function send(socket, string)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		var result =
+			socket.readyState === WebSocket.OPEN
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just({ ctor: 'NotOpen' });
+
+		try
+		{
+			socket.send(string);
+		}
+		catch(err)
+		{
+			result = _elm_lang$core$Maybe$Just({ ctor: 'BadString' });
+		}
+
+		callback(_elm_lang$core$Native_Scheduler.succeed(result));
+	});
+}
+
+function close(code, reason, socket)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+		try
+		{
+			socket.close(code, reason);
+		}
+		catch(err)
+		{
+			return callback(_elm_lang$core$Native_Scheduler.fail(_elm_lang$core$Maybe$Just({
+				ctor: err.name === 'SyntaxError' ? 'BadReason' : 'BadCode'
+			})));
+		}
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Maybe$Nothing));
+	});
+}
+
+function bytesQueued(socket)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+		callback(_elm_lang$core$Native_Scheduler.succeed(socket.bufferedAmount));
+	});
+}
+
+return {
+	open: F2(open),
+	send: F2(send),
+	close: F3(close),
+	bytesQueued: bytesQueued
+};
+
+}();
+
+var _elm_lang$websocket$WebSocket_LowLevel$bytesQueued = _elm_lang$websocket$Native_WebSocket.bytesQueued;
+var _elm_lang$websocket$WebSocket_LowLevel$send = _elm_lang$websocket$Native_WebSocket.send;
+var _elm_lang$websocket$WebSocket_LowLevel$closeWith = _elm_lang$websocket$Native_WebSocket.close;
+var _elm_lang$websocket$WebSocket_LowLevel$close = function (socket) {
+	return A2(
+		_elm_lang$core$Task$map,
+		_elm_lang$core$Basics$always(
+			{ctor: '_Tuple0'}),
+		A3(_elm_lang$websocket$WebSocket_LowLevel$closeWith, 1000, '', socket));
+};
+var _elm_lang$websocket$WebSocket_LowLevel$open = _elm_lang$websocket$Native_WebSocket.open;
+var _elm_lang$websocket$WebSocket_LowLevel$Settings = F2(
+	function (a, b) {
+		return {onMessage: a, onClose: b};
+	});
+var _elm_lang$websocket$WebSocket_LowLevel$WebSocket = {ctor: 'WebSocket'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadArgs = {ctor: 'BadArgs'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadSecurity = {ctor: 'BadSecurity'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadReason = {ctor: 'BadReason'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadCode = {ctor: 'BadCode'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadString = {ctor: 'BadString'};
+var _elm_lang$websocket$WebSocket_LowLevel$NotOpen = {ctor: 'NotOpen'};
+
+var _elm_lang$websocket$WebSocket$closeConnection = function (connection) {
+	var _p0 = connection;
+	if (_p0.ctor === 'Opening') {
+		return _elm_lang$core$Process$kill(_p0._1);
+	} else {
+		return _elm_lang$websocket$WebSocket_LowLevel$close(_p0._0);
+	}
+};
+var _elm_lang$websocket$WebSocket$after = function (backoff) {
+	return (_elm_lang$core$Native_Utils.cmp(backoff, 1) < 0) ? _elm_lang$core$Task$succeed(
+		{ctor: '_Tuple0'}) : _elm_lang$core$Process$sleep(
+		_elm_lang$core$Basics$toFloat(
+			10 * Math.pow(2, backoff)));
+};
+var _elm_lang$websocket$WebSocket$removeQueue = F2(
+	function (name, state) {
+		return _elm_lang$core$Native_Utils.update(
+			state,
+			{
+				queues: A2(_elm_lang$core$Dict$remove, name, state.queues)
+			});
+	});
+var _elm_lang$websocket$WebSocket$updateSocket = F3(
+	function (name, connection, state) {
+		return _elm_lang$core$Native_Utils.update(
+			state,
+			{
+				sockets: A3(_elm_lang$core$Dict$insert, name, connection, state.sockets)
+			});
+	});
+var _elm_lang$websocket$WebSocket$add = F2(
+	function (value, maybeList) {
+		var _p1 = maybeList;
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Just(
+				_elm_lang$core$Native_List.fromArray(
+					[value]));
+		} else {
+			return _elm_lang$core$Maybe$Just(
+				A2(_elm_lang$core$List_ops['::'], value, _p1._0));
+		}
+	});
+var _elm_lang$websocket$WebSocket$buildSubDict = F2(
+	function (subs, dict) {
+		buildSubDict:
+		while (true) {
+			var _p2 = subs;
+			if (_p2.ctor === '[]') {
+				return dict;
+			} else {
+				if (_p2._0.ctor === 'Listen') {
+					var _v3 = _p2._1,
+						_v4 = A3(
+						_elm_lang$core$Dict$update,
+						_p2._0._0,
+						_elm_lang$websocket$WebSocket$add(_p2._0._1),
+						dict);
+					subs = _v3;
+					dict = _v4;
+					continue buildSubDict;
+				} else {
+					var _v5 = _p2._1,
+						_v6 = A3(
+						_elm_lang$core$Dict$update,
+						_p2._0._0,
+						function (_p3) {
+							return _elm_lang$core$Maybe$Just(
+								A2(
+									_elm_lang$core$Maybe$withDefault,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_p3));
+						},
+						dict);
+					subs = _v5;
+					dict = _v6;
+					continue buildSubDict;
+				}
+			}
+		}
+	});
+var _elm_lang$websocket$WebSocket_ops = _elm_lang$websocket$WebSocket_ops || {};
+_elm_lang$websocket$WebSocket_ops['&>'] = F2(
+	function (t1, t2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			t1,
+			function (_p4) {
+				return t2;
+			});
+	});
+var _elm_lang$websocket$WebSocket$sendMessagesHelp = F3(
+	function (cmds, socketsDict, queuesDict) {
+		sendMessagesHelp:
+		while (true) {
+			var _p5 = cmds;
+			if (_p5.ctor === '[]') {
+				return _elm_lang$core$Task$succeed(queuesDict);
+			} else {
+				var _p9 = _p5._1;
+				var _p8 = _p5._0._0;
+				var _p7 = _p5._0._1;
+				var _p6 = A2(_elm_lang$core$Dict$get, _p8, socketsDict);
+				if ((_p6.ctor === 'Just') && (_p6._0.ctor === 'Connected')) {
+					return A2(
+						_elm_lang$websocket$WebSocket_ops['&>'],
+						A2(_elm_lang$websocket$WebSocket_LowLevel$send, _p6._0._0, _p7),
+						A3(_elm_lang$websocket$WebSocket$sendMessagesHelp, _p9, socketsDict, queuesDict));
+				} else {
+					var _v9 = _p9,
+						_v10 = socketsDict,
+						_v11 = A3(
+						_elm_lang$core$Dict$update,
+						_p8,
+						_elm_lang$websocket$WebSocket$add(_p7),
+						queuesDict);
+					cmds = _v9;
+					socketsDict = _v10;
+					queuesDict = _v11;
+					continue sendMessagesHelp;
+				}
+			}
+		}
+	});
+var _elm_lang$websocket$WebSocket$subscription = _elm_lang$core$Native_Platform.leaf('WebSocket');
+var _elm_lang$websocket$WebSocket$command = _elm_lang$core$Native_Platform.leaf('WebSocket');
+var _elm_lang$websocket$WebSocket$State = F3(
+	function (a, b, c) {
+		return {sockets: a, queues: b, subs: c};
+	});
+var _elm_lang$websocket$WebSocket$init = _elm_lang$core$Task$succeed(
+	A3(_elm_lang$websocket$WebSocket$State, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty));
+var _elm_lang$websocket$WebSocket$Send = F2(
+	function (a, b) {
+		return {ctor: 'Send', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$send = F2(
+	function (url, message) {
+		return _elm_lang$websocket$WebSocket$command(
+			A2(_elm_lang$websocket$WebSocket$Send, url, message));
+	});
+var _elm_lang$websocket$WebSocket$cmdMap = F2(
+	function (_p11, _p10) {
+		var _p12 = _p10;
+		return A2(_elm_lang$websocket$WebSocket$Send, _p12._0, _p12._1);
+	});
+var _elm_lang$websocket$WebSocket$KeepAlive = function (a) {
+	return {ctor: 'KeepAlive', _0: a};
+};
+var _elm_lang$websocket$WebSocket$keepAlive = function (url) {
+	return _elm_lang$websocket$WebSocket$subscription(
+		_elm_lang$websocket$WebSocket$KeepAlive(url));
+};
+var _elm_lang$websocket$WebSocket$Listen = F2(
+	function (a, b) {
+		return {ctor: 'Listen', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$listen = F2(
+	function (url, tagger) {
+		return _elm_lang$websocket$WebSocket$subscription(
+			A2(_elm_lang$websocket$WebSocket$Listen, url, tagger));
+	});
+var _elm_lang$websocket$WebSocket$subMap = F2(
+	function (func, sub) {
+		var _p13 = sub;
+		if (_p13.ctor === 'Listen') {
+			return A2(
+				_elm_lang$websocket$WebSocket$Listen,
+				_p13._0,
+				function (_p14) {
+					return func(
+						_p13._1(_p14));
+				});
+		} else {
+			return _elm_lang$websocket$WebSocket$KeepAlive(_p13._0);
+		}
+	});
+var _elm_lang$websocket$WebSocket$Connected = function (a) {
+	return {ctor: 'Connected', _0: a};
+};
+var _elm_lang$websocket$WebSocket$Opening = F2(
+	function (a, b) {
+		return {ctor: 'Opening', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$BadOpen = function (a) {
+	return {ctor: 'BadOpen', _0: a};
+};
+var _elm_lang$websocket$WebSocket$GoodOpen = F2(
+	function (a, b) {
+		return {ctor: 'GoodOpen', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$Die = function (a) {
+	return {ctor: 'Die', _0: a};
+};
+var _elm_lang$websocket$WebSocket$Receive = F2(
+	function (a, b) {
+		return {ctor: 'Receive', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$open = F2(
+	function (name, router) {
+		return A2(
+			_elm_lang$websocket$WebSocket_LowLevel$open,
+			name,
+			{
+				onMessage: F2(
+					function (_p15, msg) {
+						return A2(
+							_elm_lang$core$Platform$sendToSelf,
+							router,
+							A2(_elm_lang$websocket$WebSocket$Receive, name, msg));
+					}),
+				onClose: function (details) {
+					return A2(
+						_elm_lang$core$Platform$sendToSelf,
+						router,
+						_elm_lang$websocket$WebSocket$Die(name));
+				}
+			});
+	});
+var _elm_lang$websocket$WebSocket$attemptOpen = F3(
+	function (router, backoff, name) {
+		var badOpen = function (_p16) {
+			return A2(
+				_elm_lang$core$Platform$sendToSelf,
+				router,
+				_elm_lang$websocket$WebSocket$BadOpen(name));
+		};
+		var goodOpen = function (ws) {
+			return A2(
+				_elm_lang$core$Platform$sendToSelf,
+				router,
+				A2(_elm_lang$websocket$WebSocket$GoodOpen, name, ws));
+		};
+		var actuallyAttemptOpen = A2(
+			_elm_lang$core$Task$onError,
+			A2(
+				_elm_lang$core$Task$andThen,
+				A2(_elm_lang$websocket$WebSocket$open, name, router),
+				goodOpen),
+			badOpen);
+		return _elm_lang$core$Process$spawn(
+			A2(
+				_elm_lang$websocket$WebSocket_ops['&>'],
+				_elm_lang$websocket$WebSocket$after(backoff),
+				actuallyAttemptOpen));
+	});
+var _elm_lang$websocket$WebSocket$onEffects = F4(
+	function (router, cmds, subs, state) {
+		var newSubs = A2(_elm_lang$websocket$WebSocket$buildSubDict, subs, _elm_lang$core$Dict$empty);
+		var cleanup = function (newQueues) {
+			var rightStep = F3(
+				function (name, connection, getNewSockets) {
+					return A2(
+						_elm_lang$websocket$WebSocket_ops['&>'],
+						_elm_lang$websocket$WebSocket$closeConnection(connection),
+						getNewSockets);
+				});
+			var bothStep = F4(
+				function (name, _p17, connection, getNewSockets) {
+					return A2(
+						_elm_lang$core$Task$map,
+						A2(_elm_lang$core$Dict$insert, name, connection),
+						getNewSockets);
+				});
+			var leftStep = F3(
+				function (name, _p18, getNewSockets) {
+					return A2(
+						_elm_lang$core$Task$andThen,
+						getNewSockets,
+						function (newSockets) {
+							return A2(
+								_elm_lang$core$Task$andThen,
+								A3(_elm_lang$websocket$WebSocket$attemptOpen, router, 0, name),
+								function (pid) {
+									return _elm_lang$core$Task$succeed(
+										A3(
+											_elm_lang$core$Dict$insert,
+											name,
+											A2(_elm_lang$websocket$WebSocket$Opening, 0, pid),
+											newSockets));
+								});
+						});
+				});
+			var newEntries = A2(
+				_elm_lang$core$Dict$union,
+				newQueues,
+				A2(
+					_elm_lang$core$Dict$map,
+					F2(
+						function (k, v) {
+							return _elm_lang$core$Native_List.fromArray(
+								[]);
+						}),
+					newSubs));
+			return A2(
+				_elm_lang$core$Task$andThen,
+				A6(
+					_elm_lang$core$Dict$merge,
+					leftStep,
+					bothStep,
+					rightStep,
+					newEntries,
+					state.sockets,
+					_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty)),
+				function (newSockets) {
+					return _elm_lang$core$Task$succeed(
+						A3(_elm_lang$websocket$WebSocket$State, newSockets, newQueues, newSubs));
+				});
+		};
+		var sendMessagesGetNewQueues = A3(_elm_lang$websocket$WebSocket$sendMessagesHelp, cmds, state.sockets, state.queues);
+		return A2(_elm_lang$core$Task$andThen, sendMessagesGetNewQueues, cleanup);
+	});
+var _elm_lang$websocket$WebSocket$onSelfMsg = F3(
+	function (router, selfMsg, state) {
+		var _p19 = selfMsg;
+		switch (_p19.ctor) {
+			case 'Receive':
+				var sends = A2(
+					_elm_lang$core$List$map,
+					function (tagger) {
+						return A2(
+							_elm_lang$core$Platform$sendToApp,
+							router,
+							tagger(_p19._1));
+					},
+					A2(
+						_elm_lang$core$Maybe$withDefault,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						A2(_elm_lang$core$Dict$get, _p19._0, state.subs)));
+				return A2(
+					_elm_lang$websocket$WebSocket_ops['&>'],
+					_elm_lang$core$Task$sequence(sends),
+					_elm_lang$core$Task$succeed(state));
+			case 'Die':
+				var _p21 = _p19._0;
+				var _p20 = A2(_elm_lang$core$Dict$get, _p21, state.sockets);
+				if (_p20.ctor === 'Nothing') {
+					return _elm_lang$core$Task$succeed(state);
+				} else {
+					return A2(
+						_elm_lang$core$Task$andThen,
+						A3(_elm_lang$websocket$WebSocket$attemptOpen, router, 0, _p21),
+						function (pid) {
+							return _elm_lang$core$Task$succeed(
+								A3(
+									_elm_lang$websocket$WebSocket$updateSocket,
+									_p21,
+									A2(_elm_lang$websocket$WebSocket$Opening, 0, pid),
+									state));
+						});
+				}
+			case 'GoodOpen':
+				var _p24 = _p19._1;
+				var _p23 = _p19._0;
+				var _p22 = A2(_elm_lang$core$Dict$get, _p23, state.queues);
+				if (_p22.ctor === 'Nothing') {
+					return _elm_lang$core$Task$succeed(
+						A3(
+							_elm_lang$websocket$WebSocket$updateSocket,
+							_p23,
+							_elm_lang$websocket$WebSocket$Connected(_p24),
+							state));
+				} else {
+					return A3(
+						_elm_lang$core$List$foldl,
+						F2(
+							function (msg, task) {
+								return A2(
+									_elm_lang$websocket$WebSocket_ops['&>'],
+									A2(_elm_lang$websocket$WebSocket_LowLevel$send, _p24, msg),
+									task);
+							}),
+						_elm_lang$core$Task$succeed(
+							A2(
+								_elm_lang$websocket$WebSocket$removeQueue,
+								_p23,
+								A3(
+									_elm_lang$websocket$WebSocket$updateSocket,
+									_p23,
+									_elm_lang$websocket$WebSocket$Connected(_p24),
+									state))),
+						_p22._0);
+				}
+			default:
+				var _p27 = _p19._0;
+				var _p25 = A2(_elm_lang$core$Dict$get, _p27, state.sockets);
+				if (_p25.ctor === 'Nothing') {
+					return _elm_lang$core$Task$succeed(state);
+				} else {
+					if (_p25._0.ctor === 'Opening') {
+						var _p26 = _p25._0._0;
+						return A2(
+							_elm_lang$core$Task$andThen,
+							A3(_elm_lang$websocket$WebSocket$attemptOpen, router, _p26 + 1, _p27),
+							function (pid) {
+								return _elm_lang$core$Task$succeed(
+									A3(
+										_elm_lang$websocket$WebSocket$updateSocket,
+										_p27,
+										A2(_elm_lang$websocket$WebSocket$Opening, _p26 + 1, pid),
+										state));
+							});
+					} else {
+						return _elm_lang$core$Task$succeed(state);
+					}
+				}
+		}
+	});
+_elm_lang$core$Native_Platform.effectManagers['WebSocket'] = {pkg: 'elm-lang/websocket', init: _elm_lang$websocket$WebSocket$init, onEffects: _elm_lang$websocket$WebSocket$onEffects, onSelfMsg: _elm_lang$websocket$WebSocket$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$websocket$WebSocket$cmdMap, subMap: _elm_lang$websocket$WebSocket$subMap};
 
 var _elm_lang$window$Native_Window = function()
 {
@@ -10760,29 +11673,40 @@ var _rajasharan$elm_freehand_drawing$Main$touchPosDecoder = function () {
 	};
 	return A2(_elm_lang$core$Json_Decode$map, converter, _rajasharan$elm_freehand_drawing$Main$touchDecoder);
 }();
-var _rajasharan$elm_freehand_drawing$Main$cancelTouch = function (model) {
-	return _elm_lang$core$Native_Utils.update(
-		model,
-		{
-			shape: A2(
-				_elm_lang$core$List_ops['::'],
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				model.shape)
-		});
-};
-var _rajasharan$elm_freehand_drawing$Main$touchMovement = F2(
-	function (pos, model) {
+var _rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord = F2(
+	function (pos, size) {
 		var y = _elm_lang$core$Basics$toFloat(pos.y);
 		var x = _elm_lang$core$Basics$toFloat(pos.x);
-		var h = _elm_lang$core$Basics$toFloat(model.size.height);
-		var cy = 0 - (y - (h / 2));
-		var w = _elm_lang$core$Basics$toFloat(model.size.width);
-		var cx = x - (w / 2);
-		var point = {ctor: '_Tuple2', _0: cx, _1: cy};
-		var _p1 = model.shape;
-		if (_p1.ctor === '::') {
-			if (_p1._0.ctor === '::') {
+		var h = _elm_lang$core$Basics$toFloat(size.height);
+		var y$ = 0 - (y - (h / 2));
+		var w = _elm_lang$core$Basics$toFloat(size.width);
+		var x$ = x - (w / 2);
+		return {ctor: '_Tuple2', _0: x$, _1: y$};
+	});
+var _rajasharan$elm_freehand_drawing$Main$decodePoint = function (point) {
+	var result = A2(
+		_elm_lang$core$Json_Decode$decodeString,
+		A3(
+			_elm_lang$core$Json_Decode$tuple2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			_elm_lang$core$Json_Decode$float,
+			_elm_lang$core$Json_Decode$float),
+		point);
+	var _p1 = result;
+	if (_p1.ctor === 'Ok') {
+		return _elm_lang$core$Maybe$Just(_p1._0);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _rajasharan$elm_freehand_drawing$Main$addPointToShape = F2(
+	function (point, model) {
+		var _p2 = model.shape;
+		if (_p2.ctor === '::') {
+			if (_p2._0.ctor === '::') {
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -10791,9 +11715,9 @@ var _rajasharan$elm_freehand_drawing$Main$touchMovement = F2(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								_elm_lang$core$Native_List.fromArray(
-									[point, _p1._0._0]),
-								_p1._0._1),
-							_p1._1)
+									[point, _p2._0._0]),
+								_p2._0._1),
+							_p2._1)
 					});
 			} else {
 				return _elm_lang$core$Native_Utils.update(
@@ -10803,7 +11727,7 @@ var _rajasharan$elm_freehand_drawing$Main$touchMovement = F2(
 							_elm_lang$core$List_ops['::'],
 							_elm_lang$core$Native_List.fromArray(
 								[point]),
-							_p1._1)
+							_p2._1)
 					});
 			}
 		} else {
@@ -10818,6 +11742,25 @@ var _rajasharan$elm_freehand_drawing$Main$touchMovement = F2(
 				});
 		}
 	});
+var _rajasharan$elm_freehand_drawing$Main$touchMovement = F2(
+	function (pos, model) {
+		var point = A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, model.size);
+		return A2(_rajasharan$elm_freehand_drawing$Main$addPointToShape, point, model);
+	});
+var _rajasharan$elm_freehand_drawing$Main$resetPath = function (model) {
+	return A2(
+		_elm_lang$core$Debug$log,
+		'touch:start',
+		_elm_lang$core$Native_Utils.update(
+			model,
+			{
+				shape: A2(
+					_elm_lang$core$List_ops['::'],
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					model.shape)
+			}));
+};
 var _rajasharan$elm_freehand_drawing$Main$endMouseMovement = F2(
 	function (pos, model) {
 		return _elm_lang$core$Native_Utils.update(
@@ -10831,8 +11774,8 @@ var _rajasharan$elm_freehand_drawing$Main$addPositionToList = F2(
 	function (pos, model) {
 		var replace = F2(
 			function (path, shape) {
-				var _p2 = _elm_lang$core$List$head(shape);
-				if (_p2.ctor === 'Nothing') {
+				var _p3 = _elm_lang$core$List$head(shape);
+				if (_p3.ctor === 'Nothing') {
 					return A2(_elm_lang$core$List_ops['::'], path, shape);
 				} else {
 					return A2(
@@ -10841,16 +11784,8 @@ var _rajasharan$elm_freehand_drawing$Main$addPositionToList = F2(
 						A2(_elm_lang$core$List$drop, 1, shape));
 				}
 			});
-		var y = _elm_lang$core$Basics$toFloat(pos.y);
-		var x = _elm_lang$core$Basics$toFloat(pos.x);
-		var h = _elm_lang$core$Basics$toFloat(model.size.height);
-		var cy = 0 - (y - (h / 2));
-		var w = _elm_lang$core$Basics$toFloat(model.size.width);
-		var cx = x - (w / 2);
-		var newPath = A2(
-			_elm_lang$core$List_ops['::'],
-			{ctor: '_Tuple2', _0: cx, _1: cy},
-			model.currentPath);
+		var newPos = A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, model.size);
+		var newPath = A2(_elm_lang$core$List_ops['::'], newPos, model.currentPath);
 		return model.mouseMoving ? _elm_lang$core$Native_Utils.update(
 			model,
 			{
@@ -10875,6 +11810,20 @@ var _rajasharan$elm_freehand_drawing$Main$setSize = F2(
 			{size: size});
 	});
 var _rajasharan$elm_freehand_drawing$Main$nop = _elm_lang$core$Platform_Cmd$none;
+var _rajasharan$elm_freehand_drawing$Main$print = function (str) {
+	var s = A2(_elm_lang$core$Debug$log, '', str);
+	return _rajasharan$elm_freehand_drawing$Main$nop;
+};
+var _rajasharan$elm_freehand_drawing$Main$server = 'ws://192.168.1.5:3000';
+var _rajasharan$elm_freehand_drawing$Main$sendPosition = F2(
+	function (pos, size) {
+		var point = A2(_rajasharan$elm_freehand_drawing$Main$convertMouseToCanvasCoord, pos, size);
+		return A2(
+			_elm_lang$websocket$WebSocket$send,
+			_rajasharan$elm_freehand_drawing$Main$server,
+			_elm_lang$core$Basics$toString(point));
+	});
+var _rajasharan$elm_freehand_drawing$Main$sendCancel = A2(_elm_lang$websocket$WebSocket$send, _rajasharan$elm_freehand_drawing$Main$server, 'Cancel');
 var _rajasharan$elm_freehand_drawing$Main$CanvasModel = F4(
 	function (a, b, c, d) {
 		return {shape: a, currentPath: b, mouseMoving: c, size: d};
@@ -10889,85 +11838,128 @@ var _rajasharan$elm_freehand_drawing$Main$Desktop = function (a) {
 var _rajasharan$elm_freehand_drawing$Main$Phone = function (a) {
 	return {ctor: 'Phone', _0: a};
 };
+var _rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone = F2(
+	function (str, m) {
+		var point = _rajasharan$elm_freehand_drawing$Main$decodePoint(str);
+		var _p4 = point;
+		if (_p4.ctor === 'Just') {
+			return _rajasharan$elm_freehand_drawing$Main$Phone(
+				A2(
+					_rajasharan$elm_freehand_drawing$Main$addPointToShape,
+					_p4._0,
+					{shape: m.shape, size: m.size}));
+		} else {
+			return _rajasharan$elm_freehand_drawing$Main$Phone(
+				_rajasharan$elm_freehand_drawing$Main$resetPath(m));
+		}
+	});
 var _rajasharan$elm_freehand_drawing$Main$update = F2(
 	function (message, model) {
-		var _p3 = {ctor: '_Tuple2', _0: message, _1: model};
-		_v3_8:
+		var _p5 = {ctor: '_Tuple2', _0: message, _1: model};
+		_v5_11:
 		do {
-			if (_p3._1.ctor === 'Desktop') {
-				switch (_p3._0.ctor) {
+			if (_p5._1.ctor === 'Desktop') {
+				switch (_p5._0.ctor) {
 					case 'Window':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$setSize, _p3._0._0, _p3._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$setSize, _p5._0._0, _p5._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'MouseDown':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$startMouseMovement, _p3._0._0, _p3._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$startMouseMovement, _p5._0._0, _p5._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'MouseMove':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$addPositionToList, _p3._0._0, _p3._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$addPositionToList, _p5._0._0, _p5._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'MouseUp':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(
-								A2(_rajasharan$elm_freehand_drawing$Main$endMouseMovement, _p3._0._0, _p3._1._0)),
+								A2(_rajasharan$elm_freehand_drawing$Main$endMouseMovement, _p5._0._0, _p5._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
-					case 'None':
+					case 'Error':
 						return {
 							ctor: '_Tuple2',
-							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(_p3._1._0),
+							_0: _rajasharan$elm_freehand_drawing$Main$Desktop(_p5._1._0),
+							_1: _rajasharan$elm_freehand_drawing$Main$print(_p5._0._0)
+						};
+					case 'TouchStart':
+						var _p6 = _p5._1._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
+								_rajasharan$elm_freehand_drawing$Main$resetPath(
+									{shape: _p6.shape, size: _p6.size})),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					case 'TouchMove':
-						var _p4 = _p3._1._0;
+						var _p7 = _p5._1._0;
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
 								A2(
 									_rajasharan$elm_freehand_drawing$Main$touchMovement,
-									_p3._0._0,
-									{shape: _p4.shape, size: _p4.size})),
+									_p5._0._0,
+									{shape: _p7.shape, size: _p7.size})),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					default:
-						break _v3_8;
+						break _v5_11;
 				}
 			} else {
-				switch (_p3._0.ctor) {
-					case 'TouchMove':
+				switch (_p5._0.ctor) {
+					case 'TouchStart':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
-								A2(_rajasharan$elm_freehand_drawing$Main$touchMovement, _p3._0._0, _p3._1._0)),
+								_rajasharan$elm_freehand_drawing$Main$resetPath(_p5._1._0)),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
+						};
+					case 'TouchMove':
+						var _p9 = _p5._0._0;
+						var _p8 = _p5._1._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
+								A2(_rajasharan$elm_freehand_drawing$Main$touchMovement, _p9, _p8)),
+							_1: A2(_rajasharan$elm_freehand_drawing$Main$sendPosition, _p9, _p8.size)
 						};
 					case 'TouchEnd':
 						return {
 							ctor: '_Tuple2',
 							_0: _rajasharan$elm_freehand_drawing$Main$Phone(
-								_rajasharan$elm_freehand_drawing$Main$cancelTouch(_p3._1._0)),
+								_rajasharan$elm_freehand_drawing$Main$resetPath(_p5._1._0)),
+							_1: _rajasharan$elm_freehand_drawing$Main$sendCancel
+						};
+					case 'Listen':
+						return {
+							ctor: '_Tuple2',
+							_0: A2(_rajasharan$elm_freehand_drawing$Main$decodeAndAddShapePhone, _p5._0._0, _p5._1._0),
 							_1: _rajasharan$elm_freehand_drawing$Main$nop
 						};
 					default:
-						break _v3_8;
+						break _v5_11;
 				}
 			}
 		} while(false);
 		return {ctor: '_Tuple2', _0: model, _1: _rajasharan$elm_freehand_drawing$Main$nop};
 	});
+var _rajasharan$elm_freehand_drawing$Main$Listen = function (a) {
+	return {ctor: 'Listen', _0: a};
+};
 var _rajasharan$elm_freehand_drawing$Main$TouchEnd = {ctor: 'TouchEnd'};
+var _rajasharan$elm_freehand_drawing$Main$TouchStart = {ctor: 'TouchStart'};
 var _rajasharan$elm_freehand_drawing$Main$TouchMove = function (a) {
 	return {ctor: 'TouchMove', _0: a};
 };
@@ -10983,6 +11975,11 @@ var _rajasharan$elm_freehand_drawing$Main$canvas = function (m) {
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
 			[
+				A3(
+				_elm_lang$html$Html_Events$onWithOptions,
+				'touchstart',
+				{stopPropagation: true, preventDefault: true},
+				_elm_lang$core$Json_Decode$succeed(_rajasharan$elm_freehand_drawing$Main$TouchStart)),
 				A3(
 				_elm_lang$html$Html_Events$onWithOptions,
 				'touchmove',
@@ -11007,15 +12004,15 @@ var _rajasharan$elm_freehand_drawing$Main$canvas = function (m) {
 			]));
 };
 var _rajasharan$elm_freehand_drawing$Main$view = function (model) {
-	var _p5 = model;
-	if (_p5.ctor === 'Desktop') {
-		var _p6 = _p5._0;
+	var _p10 = model;
+	if (_p10.ctor === 'Desktop') {
+		var _p11 = _p10._0;
 		return _rajasharan$elm_freehand_drawing$Main$canvas(
-			{shape: _p6.shape, size: _p6.size});
+			{shape: _p11.shape, size: _p11.size});
 	} else {
-		var _p7 = _p5._0;
+		var _p12 = _p10._0;
 		return _rajasharan$elm_freehand_drawing$Main$canvas(
-			{shape: _p7.shape, size: _p7.size});
+			{shape: _p12.shape, size: _p12.size});
 	}
 };
 var _rajasharan$elm_freehand_drawing$Main$MouseUp = function (a) {
@@ -11027,7 +12024,9 @@ var _rajasharan$elm_freehand_drawing$Main$MouseMove = function (a) {
 var _rajasharan$elm_freehand_drawing$Main$MouseDown = function (a) {
 	return {ctor: 'MouseDown', _0: a};
 };
-var _rajasharan$elm_freehand_drawing$Main$None = {ctor: 'None'};
+var _rajasharan$elm_freehand_drawing$Main$Error = function (a) {
+	return {ctor: 'Error', _0: a};
+};
 var _rajasharan$elm_freehand_drawing$Main$Window = function (a) {
 	return {ctor: 'Window', _0: a};
 };
@@ -11042,13 +12041,7 @@ var _rajasharan$elm_freehand_drawing$Main$init = {
 			mouseMoving: false,
 			size: {width: 500, height: 500}
 		}),
-	_1: A3(
-		_elm_lang$core$Task$perform,
-		function (x) {
-			return _rajasharan$elm_freehand_drawing$Main$None;
-		},
-		_rajasharan$elm_freehand_drawing$Main$Window,
-		_elm_lang$window$Window$size)
+	_1: A3(_elm_lang$core$Task$perform, _rajasharan$elm_freehand_drawing$Main$Error, _rajasharan$elm_freehand_drawing$Main$Window, _elm_lang$window$Window$size)
 };
 var _rajasharan$elm_freehand_drawing$Main$subs = function (model) {
 	return _elm_lang$core$Platform_Sub$batch(
@@ -11057,7 +12050,8 @@ var _rajasharan$elm_freehand_drawing$Main$subs = function (model) {
 				_elm_lang$mouse$Mouse$downs(_rajasharan$elm_freehand_drawing$Main$MouseDown),
 				_elm_lang$mouse$Mouse$moves(_rajasharan$elm_freehand_drawing$Main$MouseMove),
 				_elm_lang$mouse$Mouse$ups(_rajasharan$elm_freehand_drawing$Main$MouseUp),
-				_elm_lang$window$Window$resizes(_rajasharan$elm_freehand_drawing$Main$Window)
+				_elm_lang$window$Window$resizes(_rajasharan$elm_freehand_drawing$Main$Window),
+				A2(_elm_lang$websocket$WebSocket$listen, _rajasharan$elm_freehand_drawing$Main$server, _rajasharan$elm_freehand_drawing$Main$Listen)
 			]));
 };
 var _rajasharan$elm_freehand_drawing$Main$main = {
