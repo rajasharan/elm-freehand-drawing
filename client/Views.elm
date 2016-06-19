@@ -17,10 +17,16 @@ view model =
 drawCanvas : Model -> Html Msg
 drawCanvas m =
     let
+        --c = Debug.log "draw" m.clients
         --l = Debug.log "shape" m.shape
         --c = Debug.log "shape-counts" <| countShape m.shape
         paths = List.map path m.shape
         forms = List.map (traced defaultLine) paths
+
+        clientShapeList = List.map (\c -> c.shape) m.clients
+        clientPathList = List.map (\s -> List.map path s) clientShapeList
+        clientFormsList = List.map (\p -> List.map (traced defaultLine) p) clientPathList
+        flattenClientForm = List.concat clientFormsList
 
         w = m.size.width
         h = m.size.height
@@ -38,7 +44,7 @@ drawCanvas m =
             , on "mousemove" mouseMoveDecoder
             , on "mouseup" mouseEndDecoder
             ]
-            [ collage w h (banner m :: forms)
+            [ collage w h ( (banner m :: forms) ++ flattenClientForm )
               |> toHtml
             ]
 

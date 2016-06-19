@@ -6,7 +6,9 @@ import Mouse
 import Types exposing (..)
 import Utils exposing (..)
 import Subscription exposing (send)
-import Decoders exposing (decodePoint)
+import Decoders exposing (decodePoint, decodeSocketMsg)
+import Encoders exposing (encodeSocketMsg)
+import Clients exposing (drawClient)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update message model =
@@ -17,7 +19,7 @@ update message model =
         TouchStart -> ( start model, nop )
         TouchMove pos -> ( draw pos model, sendPosition pos model )
         TouchEnd -> ( stop model, sendCancel model )
-        Listen str -> ( decodeAndAddShape str model, nop )
+        Listen str -> ( drawClient (decodeSocketMsg str) model, nop )
 
 start : Model -> Model
 start model =
@@ -27,8 +29,10 @@ start model =
     }
 
 stop : Model -> Model
-stop model = { model | shape = [] :: model.shape
-                     , moving = False }
+stop model =
+    { model | shape = [] :: model.shape
+            , moving = False
+    }
 
 draw : Mouse.Position -> Model -> Model
 draw pos model =
@@ -38,30 +42,27 @@ draw pos model =
         point = convertMouseToCanvasCoord pos model.size
     in
         if model.moving then
-            addPointToShape point model
+            addPointToModel point model
         else
             model
 
-addPointToShape : (Float, Float) -> Model -> Model
-addPointToShape point model =
-    case model.shape of
-        (p::ps)::xs  -> { model | shape = (([point, p])++ps)::xs }
-        ([])::xs     -> { model | shape = ([point])::xs }
-        []           -> { model | shape = [[point]] }
+addPointToModel : (Float, Float) -> Model -> Model
+addPointToModel point model =
+    { model | shape = modifyShape point model.shape }
 
 sendPosition : Mouse.Position -> Model -> Cmd Msg
 sendPosition pos m =
     let 
         normalizePoint' = normalizePoint m.size
-        point = normalizePoint' <| convertMouseToCanvasCoord pos m.size
+        (x, y) = normalizePoint' <| convertMouseToCanvasCoord pos m.size
     in
         if m.moving then
-            send m.server <| toString point
+            send m.server <| encodeSocketMsg {id = m.id, kind = Point, x = x, y = y }
         else
             nop
 
 sendCancel : Model -> Cmd Msg
-sendCancel m = send m.server "Cancel"
+sendCancel m = send m.server <| encodeSocketMsg {id = m.id, kind = Cancel, x = 0, y = 0}
 
 decodeAndAddShape : String -> Model -> Model
 decodeAndAddShape str m =
@@ -70,5 +71,5 @@ decodeAndAddShape str m =
         point = decodePoint str
     in
         case point of
-            Just p -> addPointToShape (denormalizePoint' p) m
+            Just p -> addPointToModel (denormalizePoint' p) m
             Nothing -> stop m

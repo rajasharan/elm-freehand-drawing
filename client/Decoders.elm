@@ -51,3 +51,32 @@ decodePoint point =
         case result of
             Ok r -> Just r
             Err e -> Nothing
+
+decodeSocketMsg : String -> Result String SocketMsg
+decodeSocketMsg message =
+    flip decodeString message
+    <| oneOf [ object4 SocketMsg ("id" := int) ("kind" := kindInitial) (succeed 0) (succeed 0)
+             , object4 SocketMsg ("id" := int) ("kind" := kindPoint) ("x" := float) ("y" := float)
+             , object4 SocketMsg ("id" := int) ("kind" := kindCancel) (succeed 0) (succeed 0)
+             ]
+
+kindInitial : Decoder SocketKind
+kindInitial = string `andThen`
+              (\s -> case s of
+                       "initial" -> succeed Initial
+                       _ -> fail <| "Server sent wrong kind: " ++ s
+              )
+
+kindPoint : Decoder SocketKind
+kindPoint = string `andThen`
+            (\s -> case s of
+                     "point" -> succeed Point
+                     _ -> fail <| "Server sent wrong kind: " ++ s
+            )
+
+kindCancel : Decoder SocketKind
+kindCancel = string `andThen`
+             (\s -> case s of
+                      "cancel" -> succeed Cancel
+                      _ -> fail <| "Server sent wrong kind: " ++ s
+             )

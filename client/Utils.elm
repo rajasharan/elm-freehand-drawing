@@ -54,3 +54,10 @@ print : String -> Cmd Msg
 print str =
     let s = Debug.log "" str
     in nop
+
+modifyShape : (Float, Float) -> Shape -> Shape
+modifyShape point shape =
+    case shape of
+        (p::ps)::xs  -> (([point, p])++ps)::xs
+        ([])::xs     -> ([point])::xs
+        []           -> [[point]]

@@ -3,16 +3,17 @@ var wss = new WebSocketServer({ port: 3000 });
 console.log('WebSocketServer started on port 3000');
 
 wss.on('connection', function connection(sender) {
-  sender.send('connected');
+    var id = sender._ultron.id;
+    var kind = "initial";
+    var obj = { id: id, kind: kind, x: null, y: null }
+    sender.send(JSON.stringify(obj));
+    console.log("Client Connected: ", id);
 
-  sender.on('message', function incoming(message) {
-    var msg = message.split('(').join('[').split(')').join(']');
-    //console.log('received: %s', msg);
-
-    wss.clients.forEach(function each(client) {
-        if (client !== sender) {
-            client.send(msg);
-        }
+    sender.on('message', function incoming(message) {
+        wss.clients.forEach(function each(client) {
+            if (client !== sender) {
+                client.send(message);
+            }
+        });
     });
-  });
 });

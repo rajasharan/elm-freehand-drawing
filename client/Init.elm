@@ -10,11 +10,13 @@ import Types exposing (..)
 
 init : String -> (Model, Cmd Msg)
 init hash =
-    ( { shape = []
-    , size = { width = 500, height = 500 }
-    , moving = False
-    , server = String.dropLeft 1 hash
-    }
+    ( { id = -1
+      , shape = []
+      , size = { width = 500, height = 500 }
+      , moving = False
+      , server = String.dropLeft 1 hash
+      , clients = []
+      }
     , perform Error Window Window.size
     )
 
