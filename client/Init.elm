@@ -1,0 +1,26 @@
+module Init exposing (..)
+
+import String
+import Window
+import Task exposing (perform)
+import Navigation exposing (Location)
+
+import Utils exposing (nop)
+import Types exposing (..)
+
+init : String -> (Model, Cmd Msg)
+init hash =
+    ( { shape = []
+    , size = { width = 500, height = 500 }
+    , moving = False
+    , server = String.dropLeft 1 hash
+    }
+    , perform Error Window Window.size
+    )
+
+urlHashParser : Location -> String
+urlHashParser location = location.hash
+
+urlUpdate : String -> Model -> (Model, Cmd Msg)
+urlUpdate hash model =
+    ( { model | server = String.dropLeft 1 hash }, nop )
