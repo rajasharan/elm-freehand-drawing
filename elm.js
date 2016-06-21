@@ -12850,7 +12850,14 @@ var _rajasharan$elm_freehand_drawing$Clients$modifyClient = F3(
 			clients);
 		var _p0 = c$;
 		if (_p0.ctor === 'Nothing') {
-			return clients;
+			return A2(
+				_elm_lang$core$List_ops['::'],
+				{
+					id: id,
+					shape: _elm_lang$core$Native_List.fromArray(
+						[])
+				},
+				clients);
 		} else {
 			return A3(
 				_elm_community$list_extra$List_Extra$replaceIf,

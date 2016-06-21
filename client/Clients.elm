@@ -49,7 +49,7 @@ modifyClient id point clients =
         c' = find (\c -> c.id == id) clients
     in
         case c' of
-            Nothing -> clients --|> Debug.log "modifyClient:Nothing"
+            Nothing -> {id = id, shape = []}::clients
             Just client ->
                 replaceIf
                     (\c -> c.id == id)
