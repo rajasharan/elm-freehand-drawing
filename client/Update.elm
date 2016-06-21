@@ -63,13 +63,3 @@ sendPosition pos m =
 
 sendCancel : Model -> Cmd Msg
 sendCancel m = send m.server <| encodeSocketMsg {id = m.id, kind = Cancel, x = 0, y = 0}
-
-decodeAndAddShape : String -> Model -> Model
-decodeAndAddShape str m =
-    let
-        denormalizePoint' = denormalizePoint m.size
-        point = decodePoint str
-    in
-        case point of
-            Just p -> addPointToModel (denormalizePoint' p) m
-            Nothing -> stop m

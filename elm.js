@@ -13235,20 +13235,6 @@ var _rajasharan$elm_freehand_drawing$Update$stop = function (model) {
 			moving: false
 		});
 };
-var _rajasharan$elm_freehand_drawing$Update$decodeAndAddShape = F2(
-	function (str, m) {
-		var point = _rajasharan$elm_freehand_drawing$Decoders$decodePoint(str);
-		var denormalizePoint$ = _rajasharan$elm_freehand_drawing$Utils$denormalizePoint(m.size);
-		var _p1 = point;
-		if (_p1.ctor === 'Just') {
-			return A2(
-				_rajasharan$elm_freehand_drawing$Update$addPointToModel,
-				denormalizePoint$(_p1._0),
-				m);
-		} else {
-			return _rajasharan$elm_freehand_drawing$Update$stop(m);
-		}
-	});
 var _rajasharan$elm_freehand_drawing$Update$start = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
@@ -13263,19 +13249,19 @@ var _rajasharan$elm_freehand_drawing$Update$start = function (model) {
 };
 var _rajasharan$elm_freehand_drawing$Update$update = F2(
 	function (message, model) {
-		var _p2 = message;
-		switch (_p2.ctor) {
+		var _p1 = message;
+		switch (_p1.ctor) {
 			case 'Window':
 				return {
 					ctor: '_Tuple2',
-					_0: A2(_rajasharan$elm_freehand_drawing$Utils$setSize, _p2._0, model),
+					_0: A2(_rajasharan$elm_freehand_drawing$Utils$setSize, _p1._0, model),
 					_1: _rajasharan$elm_freehand_drawing$Utils$nop
 				};
 			case 'Error':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _rajasharan$elm_freehand_drawing$Utils$print(_p2._0)
+					_1: _rajasharan$elm_freehand_drawing$Utils$print(_p1._0)
 				};
 			case 'TouchStart':
 				return {
@@ -13284,11 +13270,11 @@ var _rajasharan$elm_freehand_drawing$Update$update = F2(
 					_1: _rajasharan$elm_freehand_drawing$Utils$nop
 				};
 			case 'TouchMove':
-				var _p3 = _p2._0;
+				var _p2 = _p1._0;
 				return {
 					ctor: '_Tuple2',
-					_0: A2(_rajasharan$elm_freehand_drawing$Update$draw, _p3, model),
-					_1: A2(_rajasharan$elm_freehand_drawing$Update$sendPosition, _p3, model)
+					_0: A2(_rajasharan$elm_freehand_drawing$Update$draw, _p2, model),
+					_1: A2(_rajasharan$elm_freehand_drawing$Update$sendPosition, _p2, model)
 				};
 			case 'TouchEnd':
 				return {
@@ -13301,7 +13287,7 @@ var _rajasharan$elm_freehand_drawing$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: A2(
 						_rajasharan$elm_freehand_drawing$Clients$drawClient,
-						_rajasharan$elm_freehand_drawing$Decoders$decodeSocketMsg(_p2._0),
+						_rajasharan$elm_freehand_drawing$Decoders$decodeSocketMsg(_p1._0),
 						model),
 					_1: _rajasharan$elm_freehand_drawing$Utils$nop
 				};
