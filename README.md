@@ -7,13 +7,17 @@
 $ npm install -g elm
 $ git clone https://github.com/rajasharan/elm-freehand-drawing
 $ cd elm-freehand-drawing
+
 $ elm reactor
-#-> http://localhost:8000
+Listening on http://localhost:8000/
 ```
 
 ### Compilation
 ```sh
 $ elm make Main.elm --output elm.js
+
+# Run local webserver using lite-server or python or any framework of choice
+# Navigate to index.html where the local server is deployed
 ```
 
 ### Broadcast to Multiple Users via WebSockets
@@ -25,17 +29,7 @@ WebSocketServer started on port 3000
 ```
 
 ### Connect to WebSocket Server
-```html
-Now append the <server-ip>:<port> as a hash Location
-For e.g: http://rajasharan.github.io/elm-frontend-drawing/#ws://192.168.X.XX:3000
-```
-
-```html
-Or if the elm frontend server is running in localhost:2000 and websocket server in localhost:3000
-then url is: http://localhost:2000/#ws://localhost:3000
-
-Open in multiple browsers to test.
-```
+Click on the `server` icon and enter `<server-ip>:<port>` to connect to any running WebSocket server
 
 ### [License](/LICENSE)
 The MIT License (MIT)
