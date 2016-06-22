@@ -25,6 +25,11 @@ update message model =
         OnHoverClear -> ( onHoverClear model, nop )
         CancelHover -> ( cancelHover model, nop )
         ClearAllDrawings -> ( clearAll model, sendClearAll model )
+        ShowServerModal -> ( showServerModal model, nop )
+        SaveTransientServer server -> ( saveTransientServer server model, nop )
+        SaveServer -> ( saveServer model, nop )
+        CloseServerModal -> ( closeServerModal model, nop )
+        EnterKey keyCode -> ( enterKeyPressed keyCode model, nop )
 
 start : Model -> Model
 start model =

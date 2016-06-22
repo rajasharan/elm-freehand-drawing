@@ -43,6 +43,9 @@ mouseMoveDecoder = Json.map TouchMove (positionDecoder Mouse)
 mouseEndDecoder : Decoder Msg
 mouseEndDecoder = touchEndDecoder
 
+enterKeyDecoder : Decoder Int -> Decoder Msg
+enterKeyDecoder keyCode = Json.map EnterKey keyCode
+
 decodePoint : String -> Maybe (Float, Float)
 decodePoint point =
     let

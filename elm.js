@@ -13865,9 +13865,9 @@ var _rajasharan$elm_freehand_drawing$Types$Client = F2(
 	function (a, b) {
 		return {id: a, shape: b};
 	});
-var _rajasharan$elm_freehand_drawing$Types$ExternalProps = F2(
-	function (a, b) {
-		return {onHoverServer: a, onHoverClear: b};
+var _rajasharan$elm_freehand_drawing$Types$ExternalProps = F4(
+	function (a, b, c, d) {
+		return {onHoverServer: a, onHoverClear: b, showServerModal: c, transientServer: d};
 	});
 var _rajasharan$elm_freehand_drawing$Types$SocketMsg = F4(
 	function (a, b, c, d) {
@@ -13875,6 +13875,15 @@ var _rajasharan$elm_freehand_drawing$Types$SocketMsg = F4(
 	});
 var _rajasharan$elm_freehand_drawing$Types$Touch = {ctor: 'Touch'};
 var _rajasharan$elm_freehand_drawing$Types$Mouse = {ctor: 'Mouse'};
+var _rajasharan$elm_freehand_drawing$Types$EnterKey = function (a) {
+	return {ctor: 'EnterKey', _0: a};
+};
+var _rajasharan$elm_freehand_drawing$Types$CloseServerModal = {ctor: 'CloseServerModal'};
+var _rajasharan$elm_freehand_drawing$Types$SaveServer = {ctor: 'SaveServer'};
+var _rajasharan$elm_freehand_drawing$Types$SaveTransientServer = function (a) {
+	return {ctor: 'SaveTransientServer', _0: a};
+};
+var _rajasharan$elm_freehand_drawing$Types$ShowServerModal = {ctor: 'ShowServerModal'};
 var _rajasharan$elm_freehand_drawing$Types$ClearAllDrawings = {ctor: 'ClearAllDrawings'};
 var _rajasharan$elm_freehand_drawing$Types$CancelHover = {ctor: 'CancelHover'};
 var _rajasharan$elm_freehand_drawing$Types$OnHoverClear = {ctor: 'OnHoverClear'};
@@ -13970,6 +13979,61 @@ var _rajasharan$elm_freehand_drawing$Utils$setSize = F2(
 			{size: size});
 	});
 
+var _rajasharan$elm_freehand_drawing$External$closeServerModal = function (model) {
+	var closeServer = function (ext) {
+		return _elm_lang$core$Native_Utils.update(
+			ext,
+			{showServerModal: false});
+	};
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{
+			ext: closeServer(model.ext)
+		});
+};
+var _rajasharan$elm_freehand_drawing$External$saveServer = function (model) {
+	var close = function (ext) {
+		return _elm_lang$core$Native_Utils.update(
+			ext,
+			{showServerModal: false});
+	};
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{
+			server: A2(_elm_lang$core$Basics_ops['++'], 'ws://', model.ext.transientServer),
+			ext: close(model.ext)
+		});
+};
+var _rajasharan$elm_freehand_drawing$External$enterKeyPressed = F2(
+	function (keyCode, model) {
+		return _elm_lang$core$Native_Utils.eq(keyCode, 13) ? _rajasharan$elm_freehand_drawing$External$saveServer(model) : model;
+	});
+var _rajasharan$elm_freehand_drawing$External$saveTransientServer = F2(
+	function (server, model) {
+		var saveTransient = F2(
+			function (server, ext) {
+				return _elm_lang$core$Native_Utils.update(
+					ext,
+					{transientServer: server});
+			});
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				ext: A2(saveTransient, server, model.ext)
+			});
+	});
+var _rajasharan$elm_freehand_drawing$External$showServerModal = function (model) {
+	var showServer = function (ext) {
+		return _elm_lang$core$Native_Utils.update(
+			ext,
+			{showServerModal: true, transientServer: ''});
+	};
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{
+			ext: showServer(model.ext)
+		});
+};
 var _rajasharan$elm_freehand_drawing$External$clearAllClients = function (clients) {
 	return A2(
 		_elm_lang$core$List$map,
@@ -13993,24 +14057,39 @@ var _rajasharan$elm_freehand_drawing$External$clearAll = function (model) {
 		});
 };
 var _rajasharan$elm_freehand_drawing$External$cancelHover = function (model) {
+	var cancel = function (ext) {
+		return _elm_lang$core$Native_Utils.update(
+			ext,
+			{onHoverServer: false, onHoverClear: false});
+	};
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
-			ext: {onHoverServer: false, onHoverClear: false}
+			ext: cancel(model.ext)
 		});
 };
 var _rajasharan$elm_freehand_drawing$External$onHoverClear = function (model) {
+	var onHover = function (ext) {
+		return _elm_lang$core$Native_Utils.update(
+			ext,
+			{onHoverClear: true});
+	};
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
-			ext: {onHoverServer: false, onHoverClear: true}
+			ext: onHover(model.ext)
 		});
 };
 var _rajasharan$elm_freehand_drawing$External$onHoverServer = function (model) {
+	var onHover = function (ext) {
+		return _elm_lang$core$Native_Utils.update(
+			ext,
+			{onHoverServer: true});
+	};
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
-			ext: {onHoverServer: true, onHoverClear: false}
+			ext: onHover(model.ext)
 		});
 };
 
@@ -14236,6 +14315,9 @@ var _rajasharan$elm_freehand_drawing$Decoders$decodePoint = function (point) {
 		return _elm_lang$core$Maybe$Nothing;
 	}
 };
+var _rajasharan$elm_freehand_drawing$Decoders$enterKeyDecoder = function (keyCode) {
+	return A2(_elm_lang$core$Json_Decode$map, _rajasharan$elm_freehand_drawing$Types$EnterKey, keyCode);
+};
 var _rajasharan$elm_freehand_drawing$Decoders$touchEndDecoder = _elm_lang$core$Json_Decode$succeed(_rajasharan$elm_freehand_drawing$Types$TouchEnd);
 var _rajasharan$elm_freehand_drawing$Decoders$mouseEndDecoder = _rajasharan$elm_freehand_drawing$Decoders$touchEndDecoder;
 var _rajasharan$elm_freehand_drawing$Decoders$touchStartDecoder = _elm_lang$core$Json_Decode$succeed(_rajasharan$elm_freehand_drawing$Types$TouchStart);
@@ -14398,7 +14480,7 @@ var _rajasharan$elm_freehand_drawing$Init$init = function (hash) {
 			server: A2(_elm_lang$core$String$dropLeft, 1, hash),
 			clients: _elm_lang$core$Native_List.fromArray(
 				[]),
-			ext: {onHoverServer: false, onHoverClear: false}
+			ext: {onHoverServer: false, onHoverClear: false, showServerModal: false, transientServer: ''}
 		},
 		_1: A3(_elm_lang$core$Task$perform, _rajasharan$elm_freehand_drawing$Types$Error, _rajasharan$elm_freehand_drawing$Types$Window, _elm_lang$window$Window$size)
 	};
@@ -14540,11 +14622,41 @@ var _rajasharan$elm_freehand_drawing$Update$update = F2(
 					_0: _rajasharan$elm_freehand_drawing$External$cancelHover(model),
 					_1: _rajasharan$elm_freehand_drawing$Utils$nop
 				};
-			default:
+			case 'ClearAllDrawings':
 				return {
 					ctor: '_Tuple2',
 					_0: _rajasharan$elm_freehand_drawing$External$clearAll(model),
 					_1: _rajasharan$elm_freehand_drawing$Update$sendClearAll(model)
+				};
+			case 'ShowServerModal':
+				return {
+					ctor: '_Tuple2',
+					_0: _rajasharan$elm_freehand_drawing$External$showServerModal(model),
+					_1: _rajasharan$elm_freehand_drawing$Utils$nop
+				};
+			case 'SaveTransientServer':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_rajasharan$elm_freehand_drawing$External$saveTransientServer, _p1._0, model),
+					_1: _rajasharan$elm_freehand_drawing$Utils$nop
+				};
+			case 'SaveServer':
+				return {
+					ctor: '_Tuple2',
+					_0: _rajasharan$elm_freehand_drawing$External$saveServer(model),
+					_1: _rajasharan$elm_freehand_drawing$Utils$nop
+				};
+			case 'CloseServerModal':
+				return {
+					ctor: '_Tuple2',
+					_0: _rajasharan$elm_freehand_drawing$External$closeServerModal(model),
+					_1: _rajasharan$elm_freehand_drawing$Utils$nop
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_rajasharan$elm_freehand_drawing$External$enterKeyPressed, _p1._0, model),
+					_1: _rajasharan$elm_freehand_drawing$Utils$nop
 				};
 		}
 	});
@@ -14556,6 +14668,120 @@ var _rajasharan$elm_freehand_drawing$Views$countShape = function (shape) {
 			return _elm_lang$core$List$length(x);
 		},
 		shape);
+};
+var _rajasharan$elm_freehand_drawing$Views$showServerModal = function (model) {
+	var active = model.ext.showServerModal ? 'is-active' : '';
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class(
+				A2(_elm_lang$core$Basics_ops['++'], 'modal ', active))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('modal-background'),
+						_elm_lang$html$Html_Events$onClick(_rajasharan$elm_freehand_drawing$Types$CloseServerModal)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('modal-card')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$header,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('modal-card-head')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$p,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$class('modal-card-title')
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('Enter <server-ip>:<port> to connect')
+									]))
+							])),
+						A2(
+						_elm_lang$html$Html$section,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('modal-card-body')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$p,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$class('control has-addons')
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										A2(
+										_elm_lang$html$Html$span,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('button is-success'),
+												_elm_lang$html$Html_Attributes$disabled(true)
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html$text('ws://')
+											])),
+										A2(
+										_elm_lang$html$Html$input,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('input'),
+												_elm_lang$html$Html_Attributes$type$('text'),
+												_elm_lang$html$Html_Attributes$placeholder('<server-ip>:<port>'),
+												_elm_lang$html$Html_Events$onInput(_rajasharan$elm_freehand_drawing$Types$SaveTransientServer),
+												A2(
+												_elm_lang$html$Html_Events$on,
+												'keyup',
+												_rajasharan$elm_freehand_drawing$Decoders$enterKeyDecoder(_elm_lang$html$Html_Events$keyCode))
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[]))
+									]))
+							])),
+						A2(
+						_elm_lang$html$Html$footer,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('modal-card-foot')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$class('button is-primary'),
+										_elm_lang$html$Html_Events$onClick(_rajasharan$elm_freehand_drawing$Types$SaveServer)
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('Connect Now')
+									]))
+							]))
+					]))
+			]));
 };
 var _rajasharan$elm_freehand_drawing$Views$onHoverClear = function (model) {
 	return model.ext.onHoverClear ? A2(
@@ -14696,7 +14922,8 @@ var _rajasharan$elm_freehand_drawing$Views$drawCanvas = function (m) {
 						_elm_lang$html$Html$div,
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html_Events$onMouseOver(_rajasharan$elm_freehand_drawing$Types$OnHoverServer)
+								_elm_lang$html$Html_Events$onMouseOver(_rajasharan$elm_freehand_drawing$Types$OnHoverServer),
+								_elm_lang$html$Html_Events$onClick(_rajasharan$elm_freehand_drawing$Types$ShowServerModal)
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[
@@ -14721,7 +14948,8 @@ var _rajasharan$elm_freehand_drawing$Views$drawCanvas = function (m) {
 								24),
 								_rajasharan$elm_freehand_drawing$Views$onHoverClear(m)
 							]))
-					]))
+					])),
+				_rajasharan$elm_freehand_drawing$Views$showServerModal(m)
 			]));
 };
 var _rajasharan$elm_freehand_drawing$Views$view = function (model) {

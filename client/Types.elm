@@ -21,6 +21,8 @@ type alias Client =
 type alias ExternalProps =
     { onHoverServer : Bool
     , onHoverClear : Bool
+    , showServerModal : Bool
+    , transientServer : String
     }
 
 type alias Shape = List Path
@@ -38,6 +40,11 @@ type Msg = Window Size
          | OnHoverClear
          | CancelHover
          | ClearAllDrawings
+         | ShowServerModal
+         | SaveTransientServer String
+         | SaveServer
+         | CloseServerModal
+         | EnterKey Int
 
 type alias SocketMsg =
     { id : Id
