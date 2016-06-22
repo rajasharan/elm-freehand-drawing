@@ -16,6 +16,7 @@ init hash =
       , moving = False
       , server = String.dropLeft 1 hash
       , clients = []
+      , ext = { onHoverServer = False, onHoverClear = False }
       }
     , perform Error Window Window.size
     )

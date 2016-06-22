@@ -4,6 +4,7 @@ import List.Extra exposing (..)
 
 import Types exposing (..)
 import Utils exposing (..)
+import External exposing (clearAll)
 
 drawClient : Result String SocketMsg -> Model -> Model
 drawClient result model =
@@ -21,6 +22,7 @@ drawClient' socket model =
         Initial -> { model | clients = resetClient socket.id model.clients, id = socket.id }
         Cancel -> { model | clients = resetClient socket.id model.clients }
         Point -> addPointToClient socket.id socket.x socket.y model
+        ClearAll -> clearAll model
 
 resetClient : Id -> List Client -> List Client
 resetClient id clients =

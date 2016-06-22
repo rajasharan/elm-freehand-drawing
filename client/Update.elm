@@ -9,6 +9,7 @@ import Subscription exposing (send)
 import Decoders exposing (decodePoint, decodeSocketMsg)
 import Encoders exposing (encodeSocketMsg)
 import Clients exposing (drawClient)
+import External exposing (..)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update message model =
@@ -20,6 +21,10 @@ update message model =
         TouchMove pos -> ( draw pos model, sendPosition pos model )
         TouchEnd -> ( stop model, sendCancel model )
         Listen str -> ( drawClient (decodeSocketMsg str) model, nop )
+        OnHoverServer -> ( onHoverServer model, nop )
+        OnHoverClear -> ( onHoverClear model, nop )
+        CancelHover -> ( cancelHover model, nop )
+        ClearAllDrawings -> ( clearAll model, sendClearAll model )
 
 start : Model -> Model
 start model =
@@ -63,3 +68,6 @@ sendPosition pos m =
 
 sendCancel : Model -> Cmd Msg
 sendCancel m = send m.server <| encodeSocketMsg {id = m.id, kind = Cancel, x = 0, y = 0}
+
+sendClearAll : Model -> Cmd Msg
+sendClearAll m = send m.server <| encodeSocketMsg {id = m.id, kind = ClearAll, x = 0, y = 0}

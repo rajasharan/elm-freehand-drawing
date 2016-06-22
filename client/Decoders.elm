@@ -55,28 +55,35 @@ decodePoint point =
 decodeSocketMsg : String -> Result String SocketMsg
 decodeSocketMsg message =
     flip decodeString message
-    <| oneOf [ object4 SocketMsg ("id" := int) ("kind" := kindInitial) (succeed 0) (succeed 0)
-             , object4 SocketMsg ("id" := int) ("kind" := kindPoint) ("x" := float) ("y" := float)
-             , object4 SocketMsg ("id" := int) ("kind" := kindCancel) (succeed 0) (succeed 0)
+    <| oneOf [ object4 SocketMsg ("id" := int) ("kind" := initial) (succeed 0) (succeed 0)
+             , object4 SocketMsg ("id" := int) ("kind" := point) ("x" := float) ("y" := float)
+             , object4 SocketMsg ("id" := int) ("kind" := cancel) (succeed 0) (succeed 0)
+             , object4 SocketMsg ("id" := int) ("kind" := clearAll) (succeed 0) (succeed 0)
              ]
 
-kindInitial : Decoder SocketKind
-kindInitial = string `andThen`
+initial : Decoder SocketKind
+initial = string `andThen`
               (\s -> case s of
                        "initial" -> succeed Initial
                        _ -> fail <| "Server sent wrong kind: " ++ s
               )
 
-kindPoint : Decoder SocketKind
-kindPoint = string `andThen`
+point : Decoder SocketKind
+point = string `andThen`
             (\s -> case s of
                      "point" -> succeed Point
                      _ -> fail <| "Server sent wrong kind: " ++ s
             )
 
-kindCancel : Decoder SocketKind
-kindCancel = string `andThen`
+cancel : Decoder SocketKind
+cancel = string `andThen`
              (\s -> case s of
                       "cancel" -> succeed Cancel
+                      _ -> fail <| "Server sent wrong kind: " ++ s
+             )
+clearAll : Decoder SocketKind
+clearAll = string `andThen`
+             (\s -> case s of
+                      "clearAll" -> succeed ClearAll
                       _ -> fail <| "Server sent wrong kind: " ++ s
              )
