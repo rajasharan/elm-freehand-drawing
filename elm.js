@@ -14661,6 +14661,33 @@ var _rajasharan$elm_freehand_drawing$Update$update = F2(
 		}
 	});
 
+var _rajasharan$elm_freehand_drawing$Views$githubRibbon = A2(
+	_elm_lang$html$Html$a,
+	_elm_lang$core$Native_List.fromArray(
+		[
+			_elm_lang$html$Html_Attributes$href('https://github.com/rajasharan/elm-freehand-drawing')
+		]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			A2(
+			_elm_lang$html$Html$img,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
+							{ctor: '_Tuple2', _0: 'top', _1: '0'},
+							{ctor: '_Tuple2', _0: 'right', _1: '0'},
+							{ctor: '_Tuple2', _0: 'border', _1: '0'}
+						])),
+					_elm_lang$html$Html_Attributes$src('https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67'),
+					_elm_lang$html$Html_Attributes$alt('Fork me on Github'),
+					A2(_elm_lang$html$Html_Attributes$attribute, 'data-canonical-src', 'https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[]))
+		]));
 var _rajasharan$elm_freehand_drawing$Views$countShape = function (shape) {
 	return A2(
 		_elm_lang$core$List$map,
@@ -14949,7 +14976,8 @@ var _rajasharan$elm_freehand_drawing$Views$drawCanvas = function (m) {
 								_rajasharan$elm_freehand_drawing$Views$onHoverClear(m)
 							]))
 					])),
-				_rajasharan$elm_freehand_drawing$Views$showServerModal(m)
+				_rajasharan$elm_freehand_drawing$Views$showServerModal(m),
+				_rajasharan$elm_freehand_drawing$Views$githubRibbon
 			]));
 };
 var _rajasharan$elm_freehand_drawing$Views$view = function (model) {
